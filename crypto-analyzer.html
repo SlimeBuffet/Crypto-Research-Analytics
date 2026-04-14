@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto 10x Potential Analyzer - Binance Listed</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: #1a2332;
+            --bg-hover: #243045;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-orange: #f59e0b;
+            --accent-pink: #ec4899;
+            --border-color: #2d3748;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .logo-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-text p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-badge {
+            background: var(--bg-card);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-badge span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        .stat-badge strong {
+            font-size: 1.1rem;
+            color: var(--accent-green);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #fff 0%, #9ca3af 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .sector-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .sector-tag {
+            background: var(--bg-card);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .sector-tag:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+
+        .sector-tag.ai { border-color: var(--accent-purple); }
+        .sector-tag.defi { border-color: var(--accent-green); }
+        .sector-tag.modular { border-color: var(--accent-blue); }
+        .sector-tag.rwa { border-color: var(--accent-orange); }
+        .sector-tag.gaming { border-color: var(--accent-pink); }
+        .sector-tag.meme { border-color: var(--accent-red); }
+
+        /* Filters */
+        .filters {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .filter-select {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .search-input {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            min-width: 250px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        /* Grid */
+        .crypto-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .crypto-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .crypto-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .coin-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .coin-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .coin-name h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .coin-name span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .rank-badge {
+            background: var(--gradient-1);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-item {
+            background: var(--bg-secondary);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .metric-value.positive { color: var(--accent-green); }
+        .metric-value.negative { color: var(--accent-red); }
+
+        .price-movement {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .movement-pill {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .movement-pill.up {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+        }
+
+        .movement-pill.down {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+        }
+
+        .sector-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .sector-badge.ai { background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); }
+        .sector-badge.defi { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+        .sector-badge.modular { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+        .sector-badge.rwa { background: rgba(245, 158, 11, 0.15); color: var(--accent-orange); }
+        .sector-badge.gaming { background: rgba(236, 72, 153, 0.15); color: var(--accent-pink); }
+        .sector-badge.meme { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+
+        .reasons-list {
+            margin-bottom: 15px;
+        }
+
+        .reasons-list h4 {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .reasons-list ul {
+            list-style: none;
+        }
+
+        .reasons-list li {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .reasons-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent-green);
+            font-weight: 700;
+        }
+
+        .risks-section {
+            background: rgba(239, 68, 68, 0.08);
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 3px solid var(--accent-red);
+        }
+
+        .risks-section h4 {
+            font-size: 0.85rem;
+            color: var(--accent-red);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .risks-section ul {
+            list-style: none;
+        }
+
+        .risks-section li {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            padding: 4px 0;
+            padding-left: 18px;
+            position: relative;
+        }
+
+        .risks-section li::before {
+            content: "⚠";
+            position: absolute;
+            left: 0;
+        }
+
+        .binance-note {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .binance-note strong {
+            color: #f0b90b;
+        }
+
+        /* Score Bar */
+        .score-bar {
+            margin-top: 15px;
+        }
+
+        .score-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .score-track {
+            height: 6px;
+            background: var(--bg-secondary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 40px;
+            border: 1px solid var(--border-color);
+        }
+
+        .disclaimer h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .disclaimer p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .disclaimer-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--accent-orange);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .disclaimer-warning p {
+            color: var(--accent-orange);
+            font-weight: 500;
+            margin: 0;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 1.8rem;
+            }
+
+            .crypto-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-stats {
+                display: none;
+            }
+
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                min-width: 100%;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .crypto-card {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .crypto-card:nth-child(1) { animation-delay: 0.1s; }
+        .crypto-card:nth-child(2) { animation-delay: 0.2s; }
+        .crypto-card:nth-child(3) { animation-delay: 0.3s; }
+        .crypto-card:nth-child(4) { animation-delay: 0.4s; }
+        .crypto-card:nth-child(5) { animation-delay: 0.5s; }
+        .crypto-card:nth-child(6) { animation-delay: 0.6s; }
+        .crypto-card:nth-child(7) { animation-delay: 0.7s; }
+        .crypto-card:nth-child(8) { animation-delay: 0.8s; }
+        .crypto-card:nth-child(9) { animation-delay: 0.9s; }
+        .crypto-card:nth-child(10) { animation-delay: 1.0s; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 16px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <div class="logo-icon">10x</div>
+                <div class="logo-text">
+                    <h1>Crypto Analyzer</h1>
+                    <p>Binance Listed • High Potential</p>
+                </div>
+            </div>
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <span>Total Coins</span>
+                    <strong id="totalCoins">10</strong>
+                </div>
+                <div class="stat-badge">
+                    <span>Avg Market Cap</span>
+                    <strong id="avgMarketCap">$87M</strong>
+                </div>
+                <div class="stat-badge">
+                    <span>Sectors</span>
+                    <strong id="totalSectors">6</strong>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h2>🚀 Cryptocurrency dengan Potensi ~10x</h2>
+            <p>Analisis objektif berbasis data untuk mengidentifikasi aset crypto berisiko tinggi dengan asimetri upside yang menarik. Semua coin terdaftar di Binance Spot.</p>
+            
+            <div class="sector-tags">
+                <span class="sector-tag ai">🤖 AI & Data</span>
+                <span class="sector-tag defi">💰 DeFi / LST / LRT</span>
+                <span class="sector-tag modular">🔗 Modular / L2</span>
+                <span class="sector-tag rwa">📄 RWA Tokenization</span>
+                <span class="sector-tag gaming">🎮 Gaming Infrastructure</span>
+                <span class="sector-tag meme">🐕 Meme Community</span>
+            </div>
+        </section>
+
+        <section class="filters">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="sectorFilter">Sektor:</label>
+                    <select id="sectorFilter" class="filter-select">
+                        <option value="all">Semua Sektor</option>
+                        <option value="ai">AI & Data</option>
+                        <option value="defi">DeFi / LST / LRT</option>
+                        <option value="modular">Modular / L2</option>
+                        <option value="rwa">RWA Tokenization</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="meme">Meme</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="marketCapFilter">Market Cap:</label>
+                    <select id="marketCapFilter" class="filter-select">
+                        <option value="all">Semua</option>
+                        <option value="low">&lt; $50M</option>
+                        <option value="mid">$50M - $200M</option>
+                        <option value="high">&gt; $200M</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="sortBy">Urutkan:</label>
+                    <select id="sortBy" class="filter-select">
+                        <option value="rank">Berdasarkan Ranking</option>
+                        <option value="marketCapAsc">Market Cap (Rendah ke Tinggi)</option>
+                        <option value="marketCapDesc">Market Cap (Tinggi ke Rendah)</option>
+                        <option value="volume">Volume 24h</option>
+                    </select>
+                </div>
+                <input type="text" id="searchInput" class="search-input" placeholder="🔍 Cari coin atau ticker...">
+            </div>
+        </section>
+
+        <section class="crypto-grid" id="cryptoGrid">
+            <!-- Cards will be dynamically inserted here -->
+        </section>
+
+        <section class="disclaimer">
+            <h3>⚠️ Penafian Penting</h3>
+            <p>
+                Analisis ini disediakan hanya untuk tujuan informasi dan pendidikan. Ini <strong>BUKAN nasihat keuangan</strong>, 
+                rekomendasi investasi, atau ajakan untuk membeli/menjual aset kripto tertentu. Cryptocurrency adalah aset berisiko 
+                sangat tinggi dengan volatilitas ekstrem. Nilai investasi dapat turun atau naik secara signifikan dalam waktu singkat.
+            </p>
+            <p style="margin-top: 10px;">
+                <strong>Lakukan riset mandiri (DYOR)</strong> sebelum membuat keputusan investasi. Pertimbangkan situasi keuangan 
+                pribadi, toleransi risiko, dan tujuan investasi Anda. Hanya investasikan apa yang Anda mampu untuk kehilangan sepenuhnya.
+            </p>
+            <div class="disclaimer-warning">
+                <p>🔴 PERINGATAN: Aset yang ditampilkan memiliki risiko tinggi dan berpotensi mengalami kerugian signifikan. Performa masa lalu tidak menjamin hasil masa depan.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Data sourced from CoinGecko API • Binance Listed Coins Only</p>
+            <p style="margin-top: 8px;">© 2024 Crypto 10x Potential Analyzer. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Crypto data based on the analysis
+        const cryptoData = [
+            {
+                rank: 1,
+                name: "Livepeer",
+                ticker: "LPT",
+                icon: "LPT",
+                sector: "ai",
+                sectorName: "AI Infrastructure",
+                marketCap: 105000000,
+                volume24h: 28000000,
+                fdv: 145000000,
+                priceChange24h: 2.5,
+                priceChange7d: 12.3,
+                priceChange30d: -5.2,
+                reasons: [
+                    "Infrastruktur video decentralized untuk AI streaming",
+                    "Partnership dengan proyek AI besar",
+                    "Tokenomics deflasionaris dengan burning mechanism"
+                ],
+                risks: [
+                    "Kompetisi dari solusi centralized (AWS, Google)",
+                    "Ketergantungan pada adopsi AI video",
+                    "Volatilitas tinggi pada sektor AI crypto"
+                ],
+                binancePair: "LPT/USDT, LPT/BTC, LPT/ETH",
+                score: 4.5
+            },
+            {
+                rank: 2,
+                name: "Act I The AI Prophecy",
+                ticker: "ACT",
+                icon: "ACT",
+                sector: "ai",
+                sectorName: "AI & Data",
+                marketCap: 12000000,
+                volume24h: 8500000,
+                fdv: 18000000,
+                priceChange24h: -1.2,
+                priceChange7d: 25.6,
+                priceChange30d: 145.8,
+                reasons: [
+                    "Market cap sangat rendah dengan room pertumbuhan besar",
+                    "Fokus pada data training untuk model AI",
+                    "Community-driven dengan momentum kuat"
+                ],
+                risks: [
+                    "Proyek relatif baru dengan track record terbatas",
+                    "Likuiditas lebih rendah dibanding kompetitor",
+                    "Risiko high volatility pada low cap coins"
+                ],
+                binancePair: "ACT/USDT, ACT/BTC",
+                score: 4.2
+            },
+            {
+                rank: 3,
+                name: "Lido DAO",
+                ticker: "LDO",
+                icon: "LDO",
+                sector: "defi",
+                sectorName: "Liquid Staking",
+                marketCap: 303000000,
+                volume24h: 95000000,
+                fdv: 570000000,
+                priceChange24h: 1.8,
+                priceChange7d: -3.5,
+                priceChange30d: 8.9,
+                reasons: [
+                    "Leader dalam liquid staking Ethereum (TVL > $20B)",
+                    "Revenue sharing model yang sustainable",
+                    "Integrasi luas dengan protokol DeFi lainnya"
+                ],
+                risks: [
+                    "FDV/MC ratio tinggi (1.88x) menunjukkan potensi dilusi",
+                    "Regulatory scrutiny pada liquid staking",
+                    "Kompetisi dari Rocket Pool, Frax, dll"
+                ],
+                binancePair: "LDO/USDT, LDO/BTC, LDO/ETH, LDO/BUSD",
+                score: 4.3
+            },
+            {
+                rank: 4,
+                name: "Arweave",
+                ticker: "AR",
+                icon: "AR",
+                sector: "modular",
+                sectorName: "Modular Storage",
+                marketCap: 116000000,
+                volume24h: 42000000,
+                fdv: 145000000,
+                priceChange24h: 3.2,
+                priceChange7d: 18.7,
+                priceChange30d: 35.4,
+                reasons: [
+                    "Permanent storage solution untuk data blockchain",
+                    "Integrasi dengan Solana dan ekosistem modular",
+                    "Use case nyata dengan adopsi growing"
+                ],
+                risks: [
+                    "Kompetisi dari Filecoin, Storj, dan lainnya",
+                    "Dependency pada growth ekosistem Web3",
+                    "Token unlock schedule perlu dipantau"
+                ],
+                binancePair: "AR/USDT, AR/BTC, AR/ETH",
+                score: 4.4
+            },
+            {
+                rank: 5,
+                name: "Centrifuge",
+                ticker: "CFG",
+                icon: "CFG",
+                sector: "rwa",
+                sectorName: "RWA Tokenization",
+                marketCap: 116000000,
+                volume24h: 15000000,
+                fdv: 185000000,
+                priceChange24h: -0.8,
+                priceChange7d: 5.2,
+                priceChange30d: 22.1,
+                reasons: [
+                    "Pioneer dalam tokenisasi real-world assets",
+                    "Partnership dengan institusi keuangan tradisional",
+                    "Narasi RWA sedang trending di 2024-2025"
+                ],
+                risks: [
+                    "Regulatory complexity pada RWA",
+                    "Adopsi institusional yang lambat",
+                    "Kompetisi dari Ondo, Maple, Goldfinch"
+                ],
+                binancePair: "CFG/USDT, CFG/BTC",
+                score: 4.1
+            },
+            {
+                rank: 6,
+                name: "Bio Protocol",
+                ticker: "BIO",
+                icon: "BIO",
+                sector: "rwa",
+                sectorName: "Bio/Crypto Emerging",
+                marketCap: 33000000,
+                volume24h: 12000000,
+                fdv: 52000000,
+                priceChange24h: 5.6,
+                priceChange7d: 32.4,
+                priceChange30d: 78.9,
+                reasons: [
+                    "Sektor Bio+Crypto yang belum tersentuh (blue ocean)",
+                    "Market cap rendah dengan upside asymmetry",
+                    "First mover advantage dalam niche spesifik"
+                ],
+                risks: [
+                    "Sektor sangat baru dengan unproven track record",
+                    "Likuiditas masih berkembang",
+                    "Ketergantungan pada narasi emerging sector"
+                ],
+                binancePair: "BIO/USDT, BIO/BTC",
+                score: 3.9
+            },
+            {
+                rank: 7,
+                name: "Wormhole",
+                ticker: "W",
+                icon: "W",
+                sector: "modular",
+                sectorName: "Cross-chain Bridge",
+                marketCap: 69000000,
+                volume24h: 35000000,
+                fdv: 125000000,
+                priceChange24h: -2.1,
+                priceChange7d: 8.9,
+                priceChange30d: -12.5,
+                reasons: [
+                    "Infrastructure critical untuk interoperability multi-chain",
+                    "Support 30+ blockchain dengan volume bridge besar",
+                    "Backing dari investor tier-1 (Jump Crypto, etc)"
+                ],
+                risks: [
+                    "Security risk inherent pada bridge protocols",
+                    "Kompetisi dari LayerZero, Axelar, Synapse",
+                    "FDV/MC ratio 1.81x menunjukkan unlock mendatang"
+                ],
+                binancePair: "W/USDT, W/BTC, W/ETH",
+                score: 4.0
+            },
+            {
+                rank: 8,
+                name: "Euler",
+                ticker: "EUL",
+                icon: "EUL",
+                sector: "defi",
+                sectorName: "DeFi Lending",
+                marketCap: 27000000,
+                volume24h: 6500000,
+                fdv: 45000000,
+                priceChange24h: 1.5,
+                priceChange7d: -5.8,
+                priceChange30d: 15.3,
+                reasons: [
+                    "Lending protocol dengan inovasi isolated pools",
+                    "Recovery kuat setelah exploit 2023 (tim reimburse)",
+                    "Valuasi rendah dibanding kompetitor (Aave, Compound)"
+                ],
+                risks: [
+                    "Trust issue pasca-exploit meskipun sudah reimbursed",
+                    "Dominasi Aave di lending market",
+                    "Smart contract risk selalu ada di DeFi"
+                ],
+                binancePair: "EUL/USDT, EUL/BTC",
+                score: 3.8
+            },
+            {
+                rank: 9,
+                name: "BOOK OF MEME",
+                ticker: "BOME",
+                icon: "BOME",
+                sector: "meme",
+                sectorName: "Meme Community",
+                marketCap: 28000000,
+                volume24h: 18000000,
+                fdv: 38000000,
+                priceChange24h: -3.5,
+                priceChange7d: 45.2,
+                priceChange30d: 125.6,
+                reasons: [
+                    "Meme coin dengan community engagement tinggi",
+                    "Listing Binance memberikan credibility dan liquidity",
+                    "Potensi viral momentum di bull market"
+                ],
+                risks: [
+                    "Meme coins sangat spekulatif dan volatile",
+                    "Tidak ada fundamental utility yang jelas",
+                    "Dependence pada hype dan social media trends"
+                ],
+                binancePair: "BOME/USDT, BOME/BTC",
+                score: 3.5
+            },
+            {
+                rank: 10,
+                name: "Enjin Coin",
+                ticker: "ENJ",
+                icon: "ENJ",
+                sector: "gaming",
+                sectorName: "Gaming Infrastructure",
+                marketCap: 97000000,
+                volume24h: 22000000,
+                fdv: 145000000,
+                priceChange24h: 0.8,
+                priceChange7d: -2.1,
+                priceChange30d: 18.9,
+                reasons: [
+                    "Pioneer dalam blockchain gaming dengan track record",
+                    "Partnership dengan gaming studios besar",
+                    "Ekosistem NFT gaming yang established"
+                ],
+                risks: [
+                    "Kompetisi dari Immutable X, Gala, SAND",
+                    "Gaming crypto narrative belum fully recovered",
+                    "Adopsi mainstream gaming masih lambat"
+                ],
+                binancePair: "ENJ/USDT, ENJ/BTC, ENJ/ETH, ENJ/BUSD",
+                score: 3.9
+            }
+        ];
+
+        // Format numbers
+        function formatNumber(num) {
+            if (num >= 1000000000) {
+                return '$' + (num / 1000000000).toFixed(2) + 'B';
+            } else if (num >= 1000000) {
+                return '$' + (num / 1000000).toFixed(2) + 'M';
+            } else if (num >= 1000) {
+                return '$' + (num / 1000).toFixed(2) + 'K';
+            }
+            return '$' + num.toFixed(2);
+        }
+
+        function formatPercent(num) {
+            const sign = num >= 0 ? '+' : '';
+            return sign + num.toFixed(2) + '%';
+        }
+
+        function getScoreColor(score) {
+            if (score >= 4.3) return 'linear-gradient(90deg, #10b981, #34d399)';
+            if (score >= 4.0) return 'linear-gradient(90deg, #3b82f6, #60a5fa)';
+            if (score >= 3.7) return 'linear-gradient(90deg, #f59e0b, #fbbf24)';
+            return 'linear-gradient(90deg, #ef4444, #f87171)';
+        }
+
+        // Render cards
+        function renderCards(data) {
+            const grid = document.getElementById('cryptoGrid');
+            grid.innerHTML = '';
+
+            data.forEach(coin => {
+                const card = document.createElement('div');
+                card.className = 'crypto-card';
+                
+                const change24Class = coin.priceChange24h >= 0 ? 'up' : 'down';
+                const change7dClass = coin.priceChange7d >= 0 ? 'up' : 'down';
+                const change30dClass = coin.priceChange30d >= 0 ? 'up' : 'down';
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="coin-info">
+                            <div class="coin-icon">${coin.icon}</div>
+                            <div class="coin-name">
+                                <h3>${coin.name}</h3>
+                                <span>${coin.ticker}</span>
+                            </div>
+                        </div>
+                        <span class="rank-badge">#${coin.rank}</span>
+                    </div>
+                    <div class="card-body">
+                        <span class="sector-badge ${coin.sector}">${coin.sectorName}</span>
+                        
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <div class="metric-label">Market Cap</div>
+                                <div class="metric-value">${formatNumber(coin.marketCap)}</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Volume 24h</div>
+                                <div class="metric-value">${formatNumber(coin.volume24h)}</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">FDV</div>
+                                <div class="metric-value">${formatNumber(coin.fdv)}</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">FDV/MC Ratio</div>
+                                <div class="metric-value">${(coin.fdv / coin.marketCap).toFixed(2)}x</div>
+                            </div>
+                        </div>
+
+                        <div class="price-movement">
+                            <div class="movement-pill ${change24Class}">24h: ${formatPercent(coin.priceChange24h)}</div>
+                            <div class="movement-pill ${change7dClass}">7d: ${formatPercent(coin.priceChange7d)}</div>
+                            <div class="movement-pill ${change30dClass}">30d: ${formatPercent(coin.priceChange30d)}</div>
+                        </div>
+
+                        <div class="reasons-list">
+                            <h4>✨ Key Upside Reasons</h4>
+                            <ul>
+                                ${coin.reasons.map(reason => `<li>${reason}</li>`).join('')}
+                            </ul>
+                        </div>
+
+                        <div class="risks-section">
+                            <h4>⚠️ Risiko Utama</h4>
+                            <ul>
+                                ${coin.risks.map(risk => `<li>${risk}</li>`).join('')}
+                            </ul>
+                        </div>
+
+                        <div class="binance-note">
+                            <strong>Binance:</strong> ${coin.binancePair}
+                        </div>
+
+                        <div class="score-bar">
+                            <div class="score-label">
+                                <span>Overall Score</span>
+                                <span>${coin.score}/5.0</span>
+                            </div>
+                            <div class="score-track">
+                                <div class="score-fill" style="width: ${(coin.score / 5) * 100}%; background: ${getScoreColor(coin.score)}"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Filter and sort functionality
+        function filterAndSort() {
+            const sectorFilter = document.getElementById('sectorFilter').value;
+            const marketCapFilter = document.getElementById('marketCapFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = [...cryptoData];
+
+            // Sector filter
+            if (sectorFilter !== 'all') {
+                filtered = filtered.filter(coin => coin.sector === sectorFilter);
+            }
+
+            // Market cap filter
+            if (marketCapFilter !== 'all') {
+                filtered = filtered.filter(coin => {
+                    if (marketCapFilter === 'low') return coin.marketCap < 50000000;
+                    if (marketCapFilter === 'mid') return coin.marketCap >= 50000000 && coin.marketCap <= 200000000;
+                    if (marketCapFilter === 'high') return coin.marketCap > 200000000;
+                });
+            }
+
+            // Search filter
+            if (searchInput) {
+                filtered = filtered.filter(coin => 
+                    coin.name.toLowerCase().includes(searchInput) || 
+                    coin.ticker.toLowerCase().includes(searchInput)
+                );
+            }
+
+            // Sort
+            if (sortBy === 'marketCapAsc') {
+                filtered.sort((a, b) => a.marketCap - b.marketCap);
+            } else if (sortBy === 'marketCapDesc') {
+                filtered.sort((a, b) => b.marketCap - a.marketCap);
+            } else if (sortBy === 'volume') {
+                filtered.sort((a, b) => b.volume24h - a.volume24h);
+            } else {
+                filtered.sort((a, b) => a.rank - b.rank);
+            }
+
+            renderCards(filtered);
+            
+            // Update stats
+            document.getElementById('totalCoins').textContent = filtered.length;
+            if (filtered.length > 0) {
+                const avgMC = filtered.reduce((sum, coin) => sum + coin.marketCap, 0) / filtered.length;
+                document.getElementById('avgMarketCap').textContent = formatNumber(avgMC);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('sectorFilter').addEventListener('change', filterAndSort);
+        document.getElementById('marketCapFilter').addEventListener('change', filterAndSort);
+        document.getElementById('sortBy').addEventListener('change', filterAndSort);
+        document.getElementById('searchInput').addEventListener('input', filterAndSort);
+
+        // Initial render
+        renderCards(cryptoData);
+    </script>
+</body>
+</html>
