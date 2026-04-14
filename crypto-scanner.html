@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto 10x Potential Scanner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 3em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #00d9ff, #00ff88, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #a0a0c0;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        .stat-label {
+            color: #a0a0c0;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .scan-btn {
+            width: 100%;
+            padding: 20px 40px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #0f0f23;
+            background: linear-gradient(135deg, #00d9ff, #00ff88);
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .scan-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+        }
+
+        .scan-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            color: #a0a0c0;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 1em;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+
+        .progress-section.active {
+            display: block;
+        }
+
+        .progress-bar-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 30px;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #0f0f23;
+        }
+
+        .status-log {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .log-entry.info {
+            color: #00d9ff;
+        }
+
+        .log-entry.success {
+            color: #00ff88;
+        }
+
+        .log-entry.warning {
+            color: #ffd700;
+        }
+
+        .log-entry.error {
+            color: #ff6b6b;
+        }
+
+        /* Results Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .crypto-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .crypto-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.2);
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .coin-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #00d9ff;
+        }
+
+        .coin-ticker {
+            background: rgba(0, 217, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #00d9ff;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .metric-label {
+            color: #a0a0c0;
+            font-size: 0.8em;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .price-movement {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .price-change {
+            flex: 1;
+            text-align: center;
+        }
+
+        .price-change.positive {
+            color: #00ff88;
+        }
+
+        .price-change.negative {
+            color: #ff6b6b;
+        }
+
+        .sector-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffd700, #ff8800);
+            color: #0f0f23;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            color: #00d9ff;
+            font-size: 1em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .reasons-list,
+        .risks-list {
+            list-style: none;
+            margin-bottom: 15px;
+        }
+
+        .reasons-list li,
+        .risks-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .reasons-list li:last-child,
+        .risks-list li:last-child {
+            border-bottom: none;
+        }
+
+        .binance-pair {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .binance-pair-label {
+            color: #ffd700;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+
+        .binance-pair-value {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .overall-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .score-label {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .disclaimer-title {
+            color: #ff6b6b;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .disclaimer-text {
+            color: #a0a0c0;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2em;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">🚀 Crypto 10x Scanner</div>
+            <div class="subtitle">AI-Powered Binance Listed Cryptocurrency Analyzer</div>
+            
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCoins">0</div>
+                    <div class="stat-label">Total Coins Scanned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="potentialCoins">0</div>
+                    <div class="stat-label">High Potential Found</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="sectorsCovered">0</div>
+                    <div class="stat-label">Sectors Analyzed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="lastScanTime">-</div>
+                    <div class="stat-label">Last Scan</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <button class="scan-btn" id="scanBtn" onclick="startScan()">
+                🔍 Start Scanning for 10x Gems
+            </button>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="sectorFilter">Filter by Sector</label>
+                    <select id="sectorFilter" onchange="applyFilters()">
+                        <option value="all">All Sectors</option>
+                        <option value="AI">AI & Machine Learning</option>
+                        <option value="DeFi">DeFi & LST/LRT</option>
+                        <option value="Modular">Modular & L2</option>
+                        <option value="DePIN">DePIN & Infrastructure</option>
+                        <option value="RWA">Real World Assets</option>
+                        <option value="Gaming">Gaming & Metaverse</option>
+                        <option value="Meme">Meme & Community</option>
+                        <option value="Interoperability">Interoperability</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="marketCapFilter">Market Cap Range</label>
+                    <select id="marketCapFilter" onchange="applyFilters()">
+                        <option value="all">All Market Caps</option>
+                        <option value="micro">Micro Cap (&lt;$50M)</option>
+                        <option value="small">Small Cap ($50M-$200M)</option>
+                        <option value="mid">Mid Cap ($200M-$500M)</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="sortBy">Sort By</label>
+                    <select id="sortBy" onchange="applyFilters()">
+                        <option value="score">Overall Score</option>
+                        <option value="marketCap">Market Cap (Low to High)</option>
+                        <option value="volume">Volume (High to Low)</option>
+                        <option value="change7d">7d Change</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="searchInput">Search Coin</label>
+                    <input type="text" id="searchInput" placeholder="Enter coin name or ticker..." oninput="applyFilters()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="progress-section" id="progressSection">
+            <h3 style="margin-bottom: 15px; color: #00d9ff;">Scanning Progress</h3>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar">0%</div>
+            </div>
+            <div class="status-log" id="statusLog"></div>
+        </div>
+
+        <!-- Results Grid -->
+        <div class="results-grid" id="resultsGrid"></div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+            <div class="disclaimer-title">⚠️ DISCLAIMER - PENTING!</div>
+            <div class="disclaimer-text">
+                <strong>Ini BUKAN nasihat keuangan.</strong> Cryptocurrency adalah aset berisiko sangat tinggi dengan volatilitas ekstrem. 
+                Analisis ini didasarkan pada data historis dan metrik on-chain yang dapat berubah sewaktu-waktu. 
+                Potensi kenaikan 10x adalah skenario hipotetis berdasarkan asimetri risiko/imbalan, bukan jaminan atau prediksi pasti.
+                <br><br>
+                <strong>Lakukan riset mandiri (DYOR)</strong> sebelum membuat keputusan investasi apapun. 
+                Hanya investasikan dana yang Anda mampu kehilangan sepenuhnya. 
+                Pertimbangkan manajemen risiko yang ketat, diversifikasi portofolio, dan konsultasikan dengan penasihat keuangan profesional jika diperlukan.
+                <br><br>
+                Data ditampilkan dari CoinGecko API dan mungkin tidak real-time. Selalu verifikasi informasi terbaru sebelum trading.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const COINGECKO_API_KEY = 'CG-fn9UTZpJfhJ2BTjzVVJrnN9p';
+        const BASE_URL = 'https://pro-api.coingecko.com/api/v3';
+        
+        // State
+        let allCoins = [];
+        let filteredCoins = [];
+        let isScanning = false;
+
+        // Utility Functions
+        function formatNumber(num) {
+            if (num >= 1e9) return '$' + (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return '$' + (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return '$' + (num / 1e3).toFixed(2) + 'K';
+            return '$' + num.toFixed(2);
+        }
+
+        function formatPercent(num) {
+            const sign = num >= 0 ? '+' : '';
+            return sign + num.toFixed(2) + '%';
+        }
+
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('statusLog');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function updateProgress(percent, message) {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percent + '%';
+            progressBar.textContent = `${Math.round(percent)}% - ${message}`;
+        }
+
+        // API Functions
+        async function fetchWithRetry(url, retries = 3) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        headers: {
+                            'x-cg-pro-api-key': COINGECKO_API_KEY,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.status === 429) {
+                        const waitTime = Math.pow(2, i) * 1000;
+                        addLog(`Rate limited. Waiting ${waitTime}ms...`, 'warning');
+                        await new Promise(resolve => setTimeout(resolve, waitTime));
+                        continue;
+                    }
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    addLog(`Retry ${i + 1}/${retries} for ${url}`, 'warning');
+                    await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+                }
+            }
+        }
+
+        async function getBinanceTickers() {
+            addLog('Fetching Binance exchange data...', 'info');
+            const data = await fetchWithRetry(`${BASE_URL}/exchanges/binance`);
+            
+            const tickers = data.tickers || [];
+            const binancePairs = {};
+            
+            tickers.forEach(ticker => {
+                if (ticker.target === 'USDT' && ticker.trust_score === 'green') {
+                    const coinId = ticker.coin_id;
+                    if (!binancePairs[coinId]) {
+                        binancePairs[coinId] = [];
+                    }
+                    binancePairs[coinId].push(ticker.base);
+                }
+            });
+            
+            addLog(`Found ${Object.keys(binancePairs).length} coins with USDT pairs on Binance`, 'success');
+            return binancePairs;
+        }
+
+        async function getCoinData(coinId) {
+            try {
+                const data = await fetchWithRetry(
+                    `${BASE_URL}/coins/${coinId}?localization=false&tickers=false&market_data=true&community_data=true&developer_data=true`
+                );
+                return data;
+            } catch (error) {
+                addLog(`Failed to fetch data for ${coinId}: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        function calculateScore(coinData) {
+            const market = coinData.market_data;
+            if (!market) return 0;
+
+            let score = 0;
+            const maxScore = 25;
+
+            // Liquidity Score (0-5)
+            const volume = market.total_volume?.usd || 0;
+            const marketCap = market.market_cap?.usd || 1;
+            const volumeRatio = volume / marketCap;
+            
+            if (volumeRatio > 0.5) score += 5;
+            else if (volumeRatio > 0.2) score += 4;
+            else if (volumeRatio > 0.1) score += 3;
+            else if (volumeRatio > 0.05) score += 2;
+            else if (volumeRatio > 0.01) score += 1;
+
+            // Tokenomics Score (0-5)
+            const fdv = market.fully_diluted_valuation?.usd || marketCap;
+            const fdvRatio = fdv / marketCap;
+            
+            if (fdvRatio < 1.2) score += 5;
+            else if (fdvRatio < 1.5) score += 4;
+            else if (fdvRatio < 2) score += 3;
+            else if (fdvRatio < 3) score += 2;
+            else if (fdvRatio < 5) score += 1;
+
+            // Market Cap Score (0-5) - Lower cap = higher potential
+            if (marketCap < 50e6) score += 5;
+            else if (marketCap < 100e6) score += 4;
+            else if (marketCap < 200e6) score += 3;
+            else if (marketCap < 500e6) score += 2;
+            else if (marketCap < 1e9) score += 1;
+
+            // Momentum Score (0-5)
+            const change7d = market.price_change_percentage_7d || 0;
+            const change30d = market.price_change_percentage_30d_in_currency?.usd || 0;
+            
+            if (change7d > 20 && change30d > 50) score += 5;
+            else if (change7d > 10 && change30d > 30) score += 4;
+            else if (change7d > 5 && change30d > 15) score += 3;
+            else if (change7d > 0) score += 2;
+            else if (change7d > -10) score += 1;
+
+            // Developer/Community Activity (0-5)
+            const commits = coinData.developer_data?.commit_count_4_weeks || 0;
+            const forks = coinData.developer_data?.forks || 0;
+            const stars = coinData.developer_data?.stars || 0;
+            
+            if (commits > 100 || forks > 500 || stars > 2000) score += 5;
+            else if (commits > 50 || forks > 200 || stars > 1000) score += 4;
+            else if (commits > 20 || forks > 100 || stars > 500) score += 3;
+            else if (commits > 10 || forks > 50 || stars > 200) score += 2;
+            else if (commits > 0) score += 1;
+
+            return Math.min(score, maxScore);
+        }
+
+        function determineSector(coinData) {
+            const description = (coinData.description?.en || '').toLowerCase();
+            const categories = coinData.categories || [];
+            const name = (coinData.name || '').toLowerCase();
+
+            // AI & Machine Learning
+            if (categories.some(c => c.toLowerCase().includes('ai')) || 
+                description.includes('artificial intelligence') ||
+                description.includes('machine learning') ||
+                name.includes('ai')) {
+                return 'AI';
+            }
+
+            // DeFi & LST/LRT
+            if (categories.some(c => c.toLowerCase().includes('defi')) ||
+                description.includes('decentralized finance') ||
+                description.includes('liquid staking') ||
+                description.includes('lending') ||
+                description.includes('yield')) {
+                return 'DeFi';
+            }
+
+            // Modular & L2
+            if (categories.some(c => c.toLowerCase().includes('layer-2')) ||
+                categories.some(c => c.toLowerCase().includes('modular')) ||
+                description.includes('modular') ||
+                description.includes('layer 2') ||
+                description.includes('scaling')) {
+                return 'Modular';
+            }
+
+            // DePIN & Infrastructure
+            if (categories.some(c => c.toLowerCase().includes('infrastructure')) ||
+                categories.some(c => c.toLowerCase().includes('depin')) ||
+                description.includes('depin') ||
+                description.includes('infrastructure') ||
+                description.includes('storage') ||
+                description.includes('compute')) {
+                return 'DePIN';
+            }
+
+            // Real World Assets
+            if (categories.some(c => c.toLowerCase().includes('rwa')) ||
+                description.includes('real world assets') ||
+                description.includes('tokenization') ||
+                description.includes('rw')) {
+                return 'RWA';
+            }
+
+            // Gaming & Metaverse
+            if (categories.some(c => c.toLowerCase().includes('gaming')) ||
+                categories.some(c => c.toLowerCase().includes('metaverse')) ||
+                description.includes('gaming') ||
+                description.includes('metaverse') ||
+                description.includes('nft')) {
+                return 'Gaming';
+            }
+
+            // Meme & Community
+            if (categories.some(c => c.toLowerCase().includes('meme')) ||
+                description.includes('meme') ||
+                name.includes('doge') ||
+                name.includes('pepe') ||
+                name.includes('shib')) {
+                return 'Meme';
+            }
+
+            // Interoperability
+            if (categories.some(c => c.toLowerCase().includes('interoperability')) ||
+                categories.some(c => c.toLowerCase().includes('bridge')) ||
+                description.includes('cross-chain') ||
+                description.includes('bridge') ||
+                description.includes('interoperability')) {
+                return 'Interoperability';
+            }
+
+            return 'Other';
+        }
+
+        function createCryptoCard(coin) {
+            const market = coin.market_data;
+            const sector = determineSector(coin);
+            const score = calculateScore(coin);
+            
+            const card = document.createElement('div');
+            card.className = 'crypto-card fade-in';
+            
+            const change24h = market.price_change_percentage_24h || 0;
+            const change7d = market.price_change_percentage_7d || 0;
+            const change30d = market.price_change_percentage_30d_in_currency?.usd || 0;
+            
+            const fdv = market.fully_diluted_valuation?.usd || market.market_cap?.usd || 0;
+            const fdvRatio = fdv / (market.market_cap?.usd || 1);
+            
+            const binancePair = coin.binancePairs?.[0] || 'N/A';
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <div>
+                        <div class="coin-name">${coin.name}</div>
+                        <div style="color: #a0a0c0; font-size: 0.9em;">${coin.symbol?.toUpperCase()}</div>
+                    </div>
+                    <div class="coin-ticker">${coin.id}</div>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-label">Market Cap</div>
+                        <div class="metric-value">${formatNumber(market.market_cap?.usd || 0)}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">Volume 24h</div>
+                        <div class="metric-value">${formatNumber(market.total_volume?.usd || 0)}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">FDV</div>
+                        <div class="metric-value">${formatNumber(fdv)}</div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-label">FDV/MC Ratio</div>
+                        <div class="metric-value">${fdvRatio.toFixed(2)}x</div>
+                    </div>
+                </div>
+                
+                <div class="price-movement">
+                    <div class="price-change ${change24h >= 0 ? 'positive' : 'negative'}">
+                        <div style="font-size: 0.8em; color: #a0a0c0;">24h</div>
+                        <div style="font-weight: bold;">${formatPercent(change24h)}</div>
+                    </div>
+                    <div class="price-change ${change7d >= 0 ? 'positive' : 'negative'}">
+                        <div style="font-size: 0.8em; color: #a0a0c0;">7d</div>
+                        <div style="font-weight: bold;">${formatPercent(change7d)}</div>
+                    </div>
+                    <div class="price-change ${change30d >= 0 ? 'positive' : 'negative'}">
+                        <div style="font-size: 0.8em; color: #a0a0c0;">30d</div>
+                        <div style="font-weight: bold;">${formatPercent(change30d)}</div>
+                    </div>
+                </div>
+                
+                <div class="sector-tag">${sector}</div>
+                
+                <div class="section-title">🎯 Key Reasons for Upside Potential</div>
+                <ul class="reasons-list">
+                    ${getUpsideReasons(coin, sector)}
+                </ul>
+                
+                <div class="section-title">⚠️ Main Risks</div>
+                <ul class="risks-list">
+                    ${getRiskFactors(coin, sector)}
+                </ul>
+                
+                <div class="binance-pair">
+                    <div class="binance-pair-label">📊 Binance Pair Detected</div>
+                    <div class="binance-pair-value">${binancePair}/USDT</div>
+                </div>
+                
+                <div class="overall-score">
+                    <div class="score-label">Overall Score</div>
+                    <div class="score-value">${score}/25</div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function getUpsideReasons(coin, sector) {
+            const market = coin.market_data;
+            const reasons = [];
+            
+            // Low market cap
+            const mc = market.market_cap?.usd || 0;
+            if (mc < 100e6) {
+                reasons.push(`<li>✅ Market cap rendah ($${formatNumber(mc)}) memberikan ruang pertumbuhan signifikan</li>`);
+            }
+            
+            // Good volume ratio
+            const volume = market.total_volume?.usd || 0;
+            const volumeRatio = volume / mc;
+            if (volumeRatio > 0.2) {
+                reasons.push(`<li>✅ Likuiditas kuat dengan rasio volume/MC ${volumeRatio.toFixed(2)}x</li>`);
+            }
+            
+            // Sector-specific
+            switch(sector) {
+                case 'AI':
+                    reasons.push('<li>✅ Exposure ke tren AI yang sedang booming dengan adopsi institusional meningkat</li>');
+                    break;
+                case 'DeFi':
+                    reasons.push('<li>✅ Protokol DeFi dengan TVL tumbuh dan yield farming opportunities</li>');
+                    break;
+                case 'Modular':
+                    reasons.push('<li>✅ Infrastruktur modular untuk scaling blockchain dengan demand tinggi</li>');
+                    break;
+                case 'DePIN':
+                    reasons.push('<li>✅ Model DePIN dengan insentif token yang sustainable untuk penyedia infrastruktur</li>');
+                    break;
+                case 'RWA':
+                    reasons.push('<li>✅ Tokenisasi aset dunia nyata dengan potensi triliunan dolar</li>');
+                    break;
+                case 'Gaming':
+                    reasons.push('<li>✅ Ekosistem gaming dengan user base aktif dan integrasi NFT</li>');
+                    break;
+                case 'Meme':
+                    reasons.push('<li>✅ Komunitas kuat dan viral potential dengan social momentum</li>');
+                    break;
+                case 'Interoperability':
+                    reasons.push('<li>✅ Solusi cross-chain critical untuk multi-chain future</li>');
+                    break;
+            }
+            
+            // Developer activity
+            const commits = coin.developer_data?.commit_count_4_weeks || 0;
+            if (commits > 20) {
+                reasons.push(`<li>✅ Aktivitas developer konsisten (${commits} commits dalam 4 minggu)</li>`);
+            }
+            
+            return reasons.slice(0, 4).join('');
+        }
+
+        function getRiskFactors(coin, sector) {
+            const risks = [];
+            const market = coin.market_data;
+            
+            // FDV risk
+            const fdv = market.fully_diluted_valuation?.usd || 0;
+            const mc = market.market_cap?.usd || 1;
+            const fdvRatio = fdv / mc;
+            
+            if (fdvRatio > 2) {
+                risks.push(`<li>⚠️ Risiko dilusi tinggi (FDV ${fdvRatio.toFixed(1)}x dari MC) - token unlock besar di masa depan</li>`);
+            }
+            
+            // Volatility
+            const change7d = market.price_change_percentage_7d || 0;
+            if (Math.abs(change7d) > 30) {
+                risks.push('<li>⚠️ Volatilitas ekstrem - harga dapat berfluktuasi drastis dalam waktu singkat</li>');
+            }
+            
+            // Sector-specific risks
+            switch(sector) {
+                case 'AI':
+                    risks.push('<li>⚠️ Kompetisi ketat dengan proyek AI lain dan ketergantungan pada narasi AI</li>');
+                    break;
+                case 'DeFi':
+                    risks.push('<li>⚠️ Risiko smart contract dan kompetisi dari protokol DeFi established</li>');
+                    break;
+                case 'Modular':
+                    risks.push('<li>⚠️ Teknologi kompleks dengan adoption curve yang belum pasti</li>');
+                    break;
+                case 'DePIN':
+                    risks.push('<li>⚠️ Membutuhkan adopsi massal untuk sustainability model ekonomi</li>');
+                    break;
+                case 'RWA':
+                    risks.push('<li>⚠️ Ketergantungan pada regulasi tradisional dan partner institusional</li>');
+                    break;
+                case 'Gaming':
+                    risks.push('<li>⚠️ Siklus hidup game pendek dan ketergantungan pada player retention</li>');
+                    break;
+                case 'Meme':
+                    risks.push('<li>⚠️ Sangat bergantung pada hype dan sentiment komunitas - fundamental lemah</li>');
+                    break;
+                case 'Interoperability':
+                    risks.push('<li>⚠️ Risiko keamanan bridge dan kompetisi dari solusi native cross-chain</li>');
+                    break;
+            }
+            
+            // Low liquidity
+            const volume = market.total_volume?.usd || 0;
+            if (volume < 5e6) {
+                risks.push('<li>⚠️ Likuiditas terbatas - sulit entry/exit posisi besar tanpa slippage</li>');
+            }
+            
+            return risks.slice(0, 3).join('');
+        }
+
+        function applyFilters() {
+            const sectorFilter = document.getElementById('sectorFilter').value;
+            const marketCapFilter = document.getElementById('marketCapFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredCoins = allCoins.filter(coin => {
+                // Sector filter
+                const sector = determineSector(coin);
+                if (sectorFilter !== 'all' && sector !== sectorFilter) {
+                    return false;
+                }
+                
+                // Market cap filter
+                const mc = coin.market_data?.market_cap?.usd || 0;
+                if (marketCapFilter === 'micro' && mc >= 50e6) return false;
+                if (marketCapFilter === 'small' && (mc < 50e6 || mc >= 200e6)) return false;
+                if (marketCapFilter === 'mid' && (mc < 200e6 || mc >= 500e6)) return false;
+                
+                // Search filter
+                if (searchInput) {
+                    const name = (coin.name || '').toLowerCase();
+                    const symbol = (coin.symbol || '').toLowerCase();
+                    const id = (coin.id || '').toLowerCase();
+                    if (!name.includes(searchInput) && !symbol.includes(searchInput) && !id.includes(searchInput)) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            // Sort
+            filteredCoins.sort((a, b) => {
+                const scoreA = calculateScore(a);
+                const scoreB = calculateScore(b);
+                const mcA = a.market_data?.market_cap?.usd || 0;
+                const mcB = b.market_data?.market_cap?.usd || 0;
+                const volA = a.market_data?.total_volume?.usd || 0;
+                const volB = b.market_data?.total_volume?.usd || 0;
+                const changeA = a.market_data?.price_change_percentage_7d || 0;
+                const changeB = b.market_data?.price_change_percentage_7d || 0;
+                
+                switch(sortBy) {
+                    case 'score':
+                        return scoreB - scoreA;
+                    case 'marketCap':
+                        return mcA - mcB;
+                    case 'volume':
+                        return volB - volA;
+                    case 'change7d':
+                        return changeB - changeA;
+                    default:
+                        return scoreB - scoreA;
+                }
+            });
+            
+            renderResults();
+        }
+
+        function renderResults() {
+            const grid = document.getElementById('resultsGrid');
+            grid.innerHTML = '';
+            
+            filteredCoins.forEach(coin => {
+                const card = createCryptoCard(coin);
+                grid.appendChild(card);
+            });
+            
+            // Update stats
+            document.getElementById('potentialCoins').textContent = filteredCoins.length;
+            
+            const sectors = new Set(filteredCoins.map(coin => determineSector(coin)));
+            document.getElementById('sectorsCovered').textContent = sectors.size;
+        }
+
+        async function startScan() {
+            if (isScanning) return;
+            
+            isScanning = true;
+            const scanBtn = document.getElementById('scanBtn');
+            const progressSection = document.getElementById('progressSection');
+            
+            scanBtn.disabled = true;
+            scanBtn.textContent = '🔄 Scanning in Progress...';
+            progressSection.classList.add('active');
+            
+            document.getElementById('statusLog').innerHTML = '';
+            document.getElementById('resultsGrid').innerHTML = '';
+            allCoins = [];
+            
+            try {
+                // Step 1: Get Binance tickers
+                updateProgress(10, 'Fetching Binance exchange data...');
+                const binancePairs = await getBinanceTickers();
+                
+                // Step 2: Filter and get coin IDs
+                const coinIds = Object.keys(binancePairs).slice(0, 50); // Limit to 50 for demo
+                document.getElementById('totalCoins').textContent = coinIds.length;
+                
+                // Step 3: Fetch detailed data for each coin
+                updateProgress(20, `Starting to analyze ${coinIds.length} coins...`);
+                
+                const batchSize = 5;
+                for (let i = 0; i < coinIds.length; i += batchSize) {
+                    const batch = coinIds.slice(i, i + batchSize);
+                    const promises = batch.map(async (coinId) => {
+                        addLog(`Analyzing ${coinId}...`, 'info');
+                        const coinData = await getCoinData(coinId);
+                        if (coinData && coinData.market_data) {
+                            coinData.binancePairs = binancePairs[coinId];
+                            
+                            // Apply basic filters
+                            const mc = coinData.market_data.market_cap?.usd || 0;
+                            const volume = coinData.market_data.total_volume?.usd || 0;
+                            
+                            if (mc > 0 && mc < 500e6 && volume > 100000) {
+                                allCoins.push(coinData);
+                                addLog(`✓ ${coinId} added to candidates (MC: ${formatNumber(mc)})`, 'success');
+                            } else {
+                                addLog(`✗ ${coinId} filtered out (MC: ${formatNumber(mc)}, Vol: ${formatNumber(volume)})`, 'warning');
+                            }
+                        }
+                        
+                        const progress = 20 + ((i + batch.length) / coinIds.length) * 70;
+                        updateProgress(progress, `Processed ${Math.min(i + batch.length, coinIds.length)}/${coinIds.length} coins`);
+                    });
+                    
+                    await Promise.all(promises);
+                    
+                    // Rate limiting
+                    if (i + batchSize < coinIds.length) {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+                }
+                
+                // Step 4: Finalize
+                updateProgress(100, 'Scan complete!');
+                addLog(`Scan completed! Found ${allCoins.length} high-potential coins.`, 'success');
+                
+                filteredCoins = [...allCoins];
+                applyFilters();
+                
+                // Update last scan time
+                document.getElementById('lastScanTime').textContent = new Date().toLocaleTimeString();
+                
+            } catch (error) {
+                addLog(`Scan failed: ${error.message}`, 'error');
+                alert('Scan failed: ' + error.message);
+            } finally {
+                isScanning = false;
+                scanBtn.disabled = false;
+                scanBtn.textContent = '🔍 Start Scanning for 10x Gems';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Crypto 10x Scanner ready!');
+        });
+    </script>
+</body>
+</html>
