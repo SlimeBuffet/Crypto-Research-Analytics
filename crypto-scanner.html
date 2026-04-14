@@ -562,7 +562,8 @@
     <script>
         // Configuration
         const COINGECKO_API_KEY = 'CG-fn9UTZpJfhJ2BTjzVVJrnN9p';
-        const BASE_URL = 'https://pro-api.coingecko.com/api/v3';
+        const BASE_URL = 'https://api.coingecko.com/api/v3';
+        const USE_DEMO_KEY = true; // Set to false if using Pro key
         
         // State
         let allCoins = [];
@@ -571,6 +572,7 @@
 
         // Utility Functions
         function formatNumber(num) {
+            if (!num || num === null) return 'N/A';
             if (num >= 1e9) return '$' + (num / 1e9).toFixed(2) + 'B';
             if (num >= 1e6) return '$' + (num / 1e6).toFixed(2) + 'M';
             if (num >= 1e3) return '$' + (num / 1e3).toFixed(2) + 'K';
@@ -578,6 +580,7 @@
         }
 
         function formatPercent(num) {
+            if (!num && num !== 0) return 'N/A';
             const sign = num >= 0 ? '+' : '';
             return sign + num.toFixed(2) + '%';
         }
@@ -601,52 +604,82 @@
         async function fetchWithRetry(url, retries = 3) {
             for (let i = 0; i < retries; i++) {
                 try {
-                    const response = await fetch(url, {
-                        headers: {
-                            'x-cg-pro-api-key': COINGECKO_API_KEY,
-                            'Content-Type': 'application/json'
-                        }
-                    });
+                    const headers = {};
+                    if (USE_DEMO_KEY) {
+                        headers['x-cg-demo-api-key'] = COINGECKO_API_KEY;
+                    } else {
+                        headers['x-cg-pro-api-key'] = COINGECKO_API_KEY;
+                    }
+                    headers['Content-Type'] = 'application/json';
+                    
+                    const response = await fetch(url, { headers });
                     
                     if (response.status === 429) {
-                        const waitTime = Math.pow(2, i) * 1000;
+                        const waitTime = Math.pow(2, i) * 2000;
                         addLog(`Rate limited. Waiting ${waitTime}ms...`, 'warning');
                         await new Promise(resolve => setTimeout(resolve, waitTime));
                         continue;
                     }
                     
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    if (response.status === 401) {
+                        throw new Error('Invalid API Key (401). Check your CoinGecko API key.');
                     }
                     
-                    return await response.json();
+                    if (response.status === 403) {
+                        throw new Error('API Key Forbidden (403). Plan may not support this endpoint.');
+                    }
+                    
+                    if (response.status === 404) {
+                        throw new Error('Endpoint not found (404).');
+                    }
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text().catch(() => 'Unknown error');
+                        throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
+                    }
+                    
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return await response.json();
+                    } else {
+                        throw new Error('Response is not JSON');
+                    }
                 } catch (error) {
+                    if (error.message.includes('401') || error.message.includes('403')) {
+                        throw error; // Don't retry auth errors
+                    }
                     if (i === retries - 1) throw error;
-                    addLog(`Retry ${i + 1}/${retries} for ${url}`, 'warning');
-                    await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+                    addLog(`Retry ${i + 1}/${retries} for ${url} - ${error.message}`, 'warning');
+                    await new Promise(resolve => setTimeout(resolve, 1500 * (i + 1)));
                 }
             }
         }
 
         async function getBinanceTickers() {
             addLog('Fetching Binance exchange data...', 'info');
-            const data = await fetchWithRetry(`${BASE_URL}/exchanges/binance`);
-            
-            const tickers = data.tickers || [];
-            const binancePairs = {};
-            
-            tickers.forEach(ticker => {
-                if (ticker.target === 'USDT' && ticker.trust_score === 'green') {
-                    const coinId = ticker.coin_id;
-                    if (!binancePairs[coinId]) {
-                        binancePairs[coinId] = [];
+            try {
+                const data = await fetchWithRetry(`${BASE_URL}/exchanges/binance`);
+                
+                const tickers = data.tickers || [];
+                const binancePairs = {};
+                
+                tickers.forEach(ticker => {
+                    if (ticker.target === 'USDT' && ticker.trust_score === 'green') {
+                        const coinId = ticker.coin_id;
+                        if (!binancePairs[coinId]) {
+                            binancePairs[coinId] = [];
+                        }
+                        binancePairs[coinId].push(ticker.base);
                     }
-                    binancePairs[coinId].push(ticker.base);
-                }
-            });
-            
-            addLog(`Found ${Object.keys(binancePairs).length} coins with USDT pairs on Binance`, 'success');
-            return binancePairs;
+                });
+                
+                addLog(`Found ${Object.keys(binancePairs).length} coins with USDT pairs on Binance`, 'success');
+                return binancePairs;
+            } catch (error) {
+                addLog(`Failed to fetch Binance tickers: ${error.message}`, 'error');
+                addLog('Using fallback method with coins/markets endpoint...', 'warning');
+                return {}; // Return empty, we'll use fallback
+            }
         }
 
         async function getCoinData(coinId) {
@@ -1087,18 +1120,73 @@
             allCoins = [];
             
             try {
-                // Step 1: Get Binance tickers
+                // Step 1: Get Binance tickers or use fallback
                 updateProgress(10, 'Fetching Binance exchange data...');
-                const binancePairs = await getBinanceTickers();
+                let binancePairs = await getBinanceTickers();
+                
+                // Fallback: If Binance tickers failed, use coins/markets endpoint
+                if (Object.keys(binancePairs).length === 0) {
+                    addLog('Using fallback: Fetching top coins from markets endpoint...', 'warning');
+                    updateProgress(15, 'Fetching market data for fallback...');
+                    
+                    try {
+                        const marketsData = await fetchWithRetry(
+                            `${BASE_URL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false`
+                        );
+                        
+                        // Create mock binancePairs for coins that are likely on Binance
+                        const knownBinanceCoins = [
+                            'bitcoin', 'ethereum', 'binancecoin', 'solana', 'ripple', 
+                            'cardano', 'avalanche-2', 'polkadot', 'chainlink', 'tron',
+                            'polygon', 'wrapped-bitcoin', 'shiba-inu', 'dai', 'litecoin',
+                            'bitcoin-cash', 'near', 'uniswap', 'internet-computer', 'aptos',
+                            'ethereum-classic', 'stellar', 'monero', 'okb', 'filecoin',
+                            'cosmos', 'hedera-hashgraph', 'arbitrum', 'vechain', 'algorand',
+                            'the-graph', 'fantom', 'theta-token', 'elrond-erd-2', 'flow',
+                            'aave', 'eos', 'axie-infinity', 'tezos', 'decentraland',
+                            'chiliz', 'pancakeswap-token', 'neo', 'maker', 'kucoin-shares',
+                            'bitcoin-sv', 'iota', 'dash', 'zcash', 'compound-governance-token',
+                            'livepeer', 'arweave', 'lido-dao', 'gala', 'enjin-coin',
+                            'basic-attention-token', 'zilliqa', 'qtum', 'ravencoin', 'waves',
+                            'helium', 'loopring', 'ocean-protocol', 'fetch-ai', 'singularitynet',
+                            'render-token', 'injective-protocol', 'thorchain', 'kava', 'curve-dao-token',
+                            'frax-share', 'rocket-pool', 'convex-finance', 'yearn-finance', 'sushi',
+                            '1inch', 'balancer', 'synthetix-network-token', '0x', 'kyber-network-crystal',
+                            'bancor', 'numeraire', 'storj', 'civic', 'district0x',
+                            'gnosis', 'augur', 'status', 'aragon', 'golem',
+                            'act-i-the-ai-prophecy', 'bio-protocol', 'wormhole', 'euler', 'book-of-meme',
+                            'centrifuge', 'immutable-x', 'sandbox', 'mana', 'axie-infinity'
+                        ];
+                        
+                        marketsData.forEach(coin => {
+                            if (knownBinanceCoins.includes(coin.id) || coin.symbol.length <= 5) {
+                                if (!binancePairs[coin.id]) {
+                                    binancePairs[coin.id] = [coin.symbol.toUpperCase()];
+                                }
+                            }
+                        });
+                        
+                        addLog(`Found ${Object.keys(binancePairs).length} potential Binance coins via fallback`, 'success');
+                    } catch (fallbackError) {
+                        addLog(`Fallback also failed: ${fallbackError.message}`, 'error');
+                        throw new Error('Unable to fetch coin data. Please check your API key and internet connection.');
+                    }
+                }
                 
                 // Step 2: Filter and get coin IDs
-                const coinIds = Object.keys(binancePairs).slice(0, 50); // Limit to 50 for demo
+                let coinIds = Object.keys(binancePairs);
+                
+                // Limit for Demo API (rate limit 30/min)
+                const maxCoins = USE_DEMO_KEY ? 30 : 50;
+                coinIds = coinIds.slice(0, maxCoins);
+                
                 document.getElementById('totalCoins').textContent = coinIds.length;
+                addLog(`Starting analysis of ${coinIds.length} coins...`, 'info');
                 
                 // Step 3: Fetch detailed data for each coin
                 updateProgress(20, `Starting to analyze ${coinIds.length} coins...`);
                 
-                const batchSize = 5;
+                const batchSize = USE_DEMO_KEY ? 3 : 5; // Smaller batches for Demo API
                 for (let i = 0; i < coinIds.length; i += batchSize) {
                     const batch = coinIds.slice(i, i + batchSize);
                     const promises = batch.map(async (coinId) => {
@@ -1110,12 +1198,20 @@
                             // Apply basic filters
                             const mc = coinData.market_data.market_cap?.usd || 0;
                             const volume = coinData.market_data.total_volume?.usd || 0;
+                            const fdv = coinData.market_data.fully_diluted_valuation?.usd || mc;
                             
-                            if (mc > 0 && mc < 500e6 && volume > 100000) {
-                                allCoins.push(coinData);
-                                addLog(`✓ ${coinId} added to candidates (MC: ${formatNumber(mc)})`, 'success');
+                            // Filter: Market cap between $10M and $500M, Volume > $500k
+                            if (mc >= 10e6 && mc <= 500e6 && volume >= 500000) {
+                                // Additional filter: FDV/MC ratio should be reasonable (< 2.5)
+                                const fdvRatio = fdv / mc;
+                                if (fdvRatio <= 2.5) {
+                                    allCoins.push(coinData);
+                                    addLog(`✓ ${coinId} added (MC: ${formatNumber(mc)}, Vol: ${formatNumber(volume)}, FDV/MC: ${fdvRatio.toFixed(2)})`, 'success');
+                                } else {
+                                    addLog(`✗ ${coinId} filtered (FDV/MC too high: ${fdvRatio.toFixed(2)})`, 'warning');
+                                }
                             } else {
-                                addLog(`✗ ${coinId} filtered out (MC: ${formatNumber(mc)}, Vol: ${formatNumber(volume)})`, 'warning');
+                                addLog(`✗ ${coinId} filtered (MC: ${formatNumber(mc)}, Vol: ${formatNumber(volume)})`, 'warning');
                             }
                         }
                         
@@ -1125,9 +1221,10 @@
                     
                     await Promise.all(promises);
                     
-                    // Rate limiting
+                    // Rate limiting - longer delay for Demo API
+                    const delayTime = USE_DEMO_KEY ? 2500 : 1000;
                     if (i + batchSize < coinIds.length) {
-                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        await new Promise(resolve => setTimeout(resolve, delayTime));
                     }
                 }
                 
@@ -1143,7 +1240,7 @@
                 
             } catch (error) {
                 addLog(`Scan failed: ${error.message}`, 'error');
-                alert('Scan failed: ' + error.message);
+                alert('Scan failed: ' + error.message + '\n\nTips:\n- Check your internet connection\n- Verify your CoinGecko API key is valid\n- Demo API has rate limits (30 calls/min)\n- Try again in a few moments');
             } finally {
                 isScanning = false;
                 scanBtn.disabled = false;
