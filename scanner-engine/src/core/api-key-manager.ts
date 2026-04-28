@@ -41,7 +41,7 @@ export class ApiKeyManager {
       for (let i = 1; i <= 10; i++) {
         const envKey = `${prefix}_${i}`;
         const value = process.env[envKey];
-        if (value && !value.startsWith('your_')) {
+        if (value && !value.startsWith('your_') && !value.includes('your_') && !value.includes('your-')) {
           keys.push({
             key: value,
             useCount: 0,

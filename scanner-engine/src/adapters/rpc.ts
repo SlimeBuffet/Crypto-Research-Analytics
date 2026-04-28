@@ -27,6 +27,11 @@ export class RpcAdapter {
     return provider;
   }
 
+  /** Invalidate a cached provider so the next call re-resolves via key rotation */
+  private invalidateProvider(chain: string): void {
+    this.providers.delete(chain);
+  }
+
   /** Resolve the best RPC URL for a specific chain */
   private resolveRpcUrl(chain: 'bsc' | 'ethereum' | 'worldchain'): string | null {
     const quicknodeServiceMap = {
@@ -74,6 +79,7 @@ export class RpcAdapter {
         { chain, token: tokenAddress, error: error.message },
         'On-chain supply verification failed',
       );
+      this.invalidateProvider(chain);
       return null;
     }
   }
@@ -88,6 +94,7 @@ export class RpcAdapter {
     } catch (err) {
       const error = err as Error;
       logger.warn({ chain, error: error.message }, 'Failed to get latest block');
+      this.invalidateProvider(chain);
       return null;
     }
   }
