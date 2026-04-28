@@ -443,7 +443,13 @@ export class AntiManipulationGuard {
     const suspectedSpikes = hfSpikes.filter((s) => s.isSuspected);
     if (suspectedSpikes.length > 0) probability += Math.min(0.2, suspectedSpikes.length * 0.05);
 
+    // Only count flags not already accounted for by dedicated parameters above
+    // (Benford's → WASH_TRADING with "Benford's", spread → SPOOFING, HF spikes → WASH_TRADING with "1m volume")
+    const alreadyCounted = new Set(['SPOOFING']);
     for (const flag of flags) {
+      if (alreadyCounted.has(flag.type)) continue;
+      if (flag.evidence.includes("Benford's Law")) continue;
+      if (flag.evidence.includes('1m volume spike')) continue;
       if (flag.severity === 'CRITICAL') probability += 0.15;
       else if (flag.severity === 'HIGH') probability += 0.1;
       else if (flag.severity === 'MEDIUM') probability += 0.05;

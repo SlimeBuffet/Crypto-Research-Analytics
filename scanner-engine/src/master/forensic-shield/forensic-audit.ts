@@ -258,12 +258,25 @@ export class ForensicAuditEngine {
         if (profiles.length > 0) {
           const totalValue = profiles.reduce((s, p) => s + p.totalUsdValue, 0);
           top10Pct = Math.min(100, (totalValue / (coin.marketCap || 1)) * 100);
-          const exchangeLabels = ['binance', 'okx', 'coinbase', 'kraken', 'bybit'];
+          // Known major exchange hot wallet addresses (Ethereum mainnet)
+          const knownExchangeAddresses = new Set([
+            '0x28c6c06298d514db089934071355e5743bf21d60', // Binance 14
+            '0x21a31ee1afc51d94c2efccaa2092ad1028285549', // Binance 7
+            '0xdfd5293d8e347dfe59e90efd55b2956a1343963d', // Binance 8
+            '0x56eddb7aa87536c09ccc2793473599fd21a8b17f', // Binance 17
+            '0x9696f59e4d72e237be84ffd425dcad154bf96976', // Binance 18
+            '0xa7efae728d2936e78bda97dc267687568dd593f3', // OKX
+            '0x6cc5f688a315f3dc28a7781717a9a798a59fda7b', // OKX 2
+            '0xa9d1e08c7793af67e9d92fe308d5697fb81d3e43', // Coinbase 10
+            '0x503828976d22510aad0201ac7ec88293211d23da', // Coinbase 2
+            '0x2910543af39aba0cd09dbb2d50200b3e800a63d2', // Kraken 13
+            '0x267be1c1d684f78cb4f6a176c4911b741e4ffdc0', // Kraken 4
+            '0xf89d7b9c864f589bbf53a82105107622b35eaa40', // Bybit
+            '0x1ab4973a48dc892cd9971ece8e01dcc7688f8f23', // Bybit 2
+          ]);
           let exchangeValue = 0;
           whaleWallets = profiles.slice(0, 10).map((p) => {
-            const isExchange = exchangeLabels.some(
-              (e) => p.address.toLowerCase().includes(e),
-            );
+            const isExchange = knownExchangeAddresses.has(p.address.toLowerCase());
             if (isExchange) exchangeValue += p.totalUsdValue;
             return {
               address: p.address,
