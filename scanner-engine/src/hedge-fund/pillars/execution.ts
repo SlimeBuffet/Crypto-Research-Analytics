@@ -4,6 +4,8 @@ import { fetchWithBackoff } from '../../utils/fetcher';
 import { logger } from '../../utils/logger';
 import {
   ExecutionPlan,
+  ExecutionTask,
+  ExecutionPriority,
   OrderBookAnalysis,
   ExecutionStrategy,
   ExecutionSlice,
@@ -34,6 +36,7 @@ export class ExecutionEngine {
     strategy: 'VWAP' | 'TWAP' = 'VWAP',
     numSlices = 10,
     intervalMs = 60_000,
+    priority: ExecutionPriority = 'MEDIUM',
   ): Promise<ExecutionPlan> {
     const orderBookAnalysis = await this.analyzeOrderBook(coin, positionSizeUsd);
     const routingPlan = this.buildRoutingPlan(coin, orderBookAnalysis);
@@ -48,10 +51,18 @@ export class ExecutionEngine {
 
     return {
       symbol: coin.symbol,
+      priority,
       orderBookAnalysis,
       executionStrategy,
       routingPlan,
     };
+  }
+
+  /** Determine execution priority based on alpha score */
+  static assignPriority(alphaScore: number): ExecutionPriority {
+    if (alphaScore >= 90) return 'HIGH';
+    if (alphaScore >= 75) return 'MEDIUM';
+    return 'LOW';
   }
 
   /**
@@ -261,7 +272,7 @@ export class ExecutionEngine {
   }
 
   /**
-   * Batch plan execution for multiple coins.
+   * Batch plan execution for multiple coins (legacy interface).
    */
   async planBatch(
     coins: CoinData[],
@@ -270,35 +281,143 @@ export class ExecutionEngine {
     numSlices: number,
     intervalMs: number,
   ): Promise<Map<string, ExecutionPlan>> {
-    const results = new Map<string, ExecutionPlan>();
+    const tasks: ExecutionTask[] = coins.map((coin) => ({
+      coin,
+      priority: 'MEDIUM',
+      alphaScore: 0,
+      positionSizeUsd,
+      strategy,
+      numSlices,
+      intervalMs,
+    }));
 
-    for (const coin of coins) {
+    return this.planWithPriorityQueue(tasks);
+  }
+
+  /**
+   * Priority Queue Execution — processes tasks by priority.
+   * HIGH priority tasks execute first and are retried on rate-limit.
+   * LOW priority tasks are deferred when rate-limited.
+   */
+  async planWithPriorityQueue(
+    tasks: ExecutionTask[],
+  ): Promise<Map<string, ExecutionPlan>> {
+    const priorityOrder: Record<ExecutionPriority, number> = {
+      HIGH: 0,
+      MEDIUM: 1,
+      LOW: 2,
+    };
+
+    const sorted = [...tasks].sort(
+      (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]
+        || b.alphaScore - a.alphaScore,
+    );
+
+    const results = new Map<string, ExecutionPlan>();
+    let rateLimitHit = false;
+    const deferred: ExecutionTask[] = [];
+
+    for (const task of sorted) {
+      if (rateLimitHit && task.priority === 'LOW') {
+        deferred.push(task);
+        continue;
+      }
+
       try {
         const plan = await this.plan(
-          coin,
-          positionSizeUsd,
-          strategy,
-          numSlices,
-          intervalMs,
+          task.coin,
+          task.positionSizeUsd,
+          task.strategy,
+          task.numSlices,
+          task.intervalMs,
+          task.priority,
         );
-        results.set(coin.symbol, plan);
+        results.set(task.coin.symbol, plan);
       } catch (err) {
         const error = err as Error;
-        logger.warn(
-          { symbol: coin.symbol, error: error.message },
-          'Execution planning failed',
-        );
+        const isRateLimit = error.message.includes('429') || error.message.includes('rate');
+
+        if (isRateLimit) {
+          rateLimitHit = true;
+          logger.warn(
+            { symbol: task.coin.symbol, priority: task.priority },
+            'Rate limit hit — deferring LOW priority tasks',
+          );
+
+          if (task.priority === 'HIGH') {
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+            try {
+              const retryPlan = await this.plan(
+                task.coin,
+                task.positionSizeUsd,
+                task.strategy,
+                task.numSlices,
+                task.intervalMs,
+                task.priority,
+              );
+              results.set(task.coin.symbol, retryPlan);
+            } catch (retryErr) {
+              const retryError = retryErr as Error;
+              logger.warn(
+                { symbol: task.coin.symbol, error: retryError.message },
+                'HIGH priority retry also failed',
+              );
+            }
+          } else {
+            deferred.push(task);
+          }
+        } else {
+          logger.warn(
+            { symbol: task.coin.symbol, error: error.message },
+            'Execution planning failed',
+          );
+        }
+      }
+    }
+
+    if (deferred.length > 0) {
+      logger.info(
+        { deferred: deferred.length },
+        'Processing deferred LOW priority tasks after cooldown',
+      );
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
+      for (const task of deferred) {
+        try {
+          const plan = await this.plan(
+            task.coin,
+            task.positionSizeUsd,
+            task.strategy,
+            task.numSlices,
+            task.intervalMs,
+            task.priority,
+          );
+          results.set(task.coin.symbol, plan);
+        } catch (err) {
+          const error = err as Error;
+          logger.warn(
+            { symbol: task.coin.symbol, error: error.message },
+            'Deferred execution planning failed',
+          );
+        }
       }
     }
 
     logger.info(
       {
         planned: results.size,
+        total: tasks.length,
+        deferred: deferred.length,
         liquidEnough: [...results.values()].filter(
           (p) => p.orderBookAnalysis.isLiquidEnough,
         ).length,
+        byPriority: {
+          high: tasks.filter((t) => t.priority === 'HIGH').length,
+          medium: tasks.filter((t) => t.priority === 'MEDIUM').length,
+          low: tasks.filter((t) => t.priority === 'LOW').length,
+        },
       },
-      'Pillar C: Execution planning complete',
+      'Pillar C: Priority queue execution complete',
     );
 
     return results;
