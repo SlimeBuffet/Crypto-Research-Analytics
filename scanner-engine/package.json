@@ -7,6 +7,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
+    "hedge-fund": "node dist/hedge-fund-runner.js",
+    "hedge-fund:dev": "ts-node src/hedge-fund-runner.ts",
     "lint": "eslint src/ --ext .ts",
     "typecheck": "tsc --noEmit"
   },
