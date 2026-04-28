@@ -14,6 +14,7 @@ import {
   HedgeFundConfig,
   PipelineResult,
   ScanSummary,
+  ExecutionTask,
 } from '../types';
 
 const DEFAULT_CONFIG: HedgeFundConfig = {
@@ -22,6 +23,10 @@ const DEFAULT_CONFIG: HedgeFundConfig = {
     lowPeriod: 8,
     smaPeriod: 5,
     offset: 0,
+    atrPeriod: 14,
+    atrMultiplier: 0.75,
+    volumeSmaPeriod: 20,
+    volumeSpikeMultiplier: 1.5,
   },
   maxCorrelation: 0.8,
   maxSlippagePct: 1.0,
@@ -167,7 +172,13 @@ export class HedgeFundEngine {
     const macroState = await this.macro.getState();
 
     let macroApproved = riskApproved;
-    if (this.config.macroEnabled && macroState.signal === 'RED') {
+    if (this.config.macroEnabled && macroState.btcCrashGate.isGateLocked) {
+      logger.warn(
+        { signal: macroState.signal, recommendation: macroState.recommendation },
+        'BTC CRASH GATE LOCKED — halting all execution',
+      );
+      macroApproved = [];
+    } else if (this.config.macroEnabled && macroState.signal === 'RED') {
       logger.info(
         { signal: macroState.signal, recommendation: macroState.recommendation },
         'Macro RED signal — reducing candidate pool',
@@ -197,19 +208,27 @@ export class HedgeFundEngine {
     const narrativeResults = await this.narrative.analyzeBatch(macroApproved);
 
     // ================================================================
-    // Stage 5: Pillar C — Execution Planning
+    // Stage 5: Pillar C — Execution Planning (Priority Queue)
     // ================================================================
-    logger.info('--- Stage 5: Pillar C — Execution Planning ---');
+    logger.info('--- Stage 5: Pillar C — Execution Planning (Priority Queue) ---');
     const adjustedPositionSize =
       this.config.positionSizeUsd * macroState.riskMultiplier;
 
-    const executionPlans = await this.execution.planBatch(
-      macroApproved,
-      adjustedPositionSize,
-      this.config.executionType,
-      this.config.executionSlices,
-      this.config.executionIntervalMs,
-    );
+    const executionTasks: ExecutionTask[] = macroApproved.map((coin) => {
+      const alpha = alphaResults.get(coin.symbol);
+      const alphaScore = alpha?.totalAlphaScore ?? 0;
+      return {
+        coin,
+        priority: ExecutionEngine.assignPriority(alphaScore),
+        alphaScore,
+        positionSizeUsd: adjustedPositionSize,
+        strategy: this.config.executionType,
+        numSlices: this.config.executionSlices,
+        intervalMs: this.config.executionIntervalMs,
+      };
+    });
+
+    const executionPlans = await this.execution.planWithPriorityQueue(executionTasks);
 
     // ================================================================
     // Assemble pipeline results

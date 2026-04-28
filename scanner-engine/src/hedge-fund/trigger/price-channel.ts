@@ -8,6 +8,10 @@ const DEFAULT_CONFIG: TriggerConfig = {
   lowPeriod: 8,
   smaPeriod: 5,
   offset: 0,
+  atrPeriod: 14,
+  atrMultiplier: 0.75,
+  volumeSmaPeriod: 20,
+  volumeSpikeMultiplier: 1.5,
 };
 
 /**
@@ -16,8 +20,9 @@ const DEFAULT_CONFIG: TriggerConfig = {
  * High Line: SMA(smaPeriod) of the Highs over (highPeriod) candles.
  * Low  Line: SMA(smaPeriod) of the Lows  over (lowPeriod)  candles.
  *
- * Scanning is ONLY triggered when Price > High Line,
- * indicating an "Institutional Inflow State."
+ * A breakout is valid ONLY when ALL conditions are met:
+ *   1. Price > UpperChannel + (k * ATR)  — volatility-buffered breakout
+ *   2. Volume > SMA(Volume, 20) * 1.5    — institutional volume confirmation
  */
 export class PriceChannelTrigger {
   private config: TriggerConfig;
@@ -89,16 +94,65 @@ export class PriceChannelTrigger {
   }
 
   /**
+   * Compute Average True Range (ATR) over the configured period.
+   * ATR = SMA of True Range, where TR = max(H-L, |H-prevC|, |L-prevC|).
+   */
+  private computeATR(klines: BinanceKline[]): number {
+    const { atrPeriod } = this.config;
+    if (klines.length < atrPeriod + 1) return 0;
+
+    const trueRanges: number[] = [];
+    for (let i = 1; i < klines.length; i++) {
+      const high = parseFloat(klines[i].high);
+      const low = parseFloat(klines[i].low);
+      const prevClose = parseFloat(klines[i - 1].close);
+
+      const tr = Math.max(
+        high - low,
+        Math.abs(high - prevClose),
+        Math.abs(low - prevClose),
+      );
+      trueRanges.push(tr);
+    }
+
+    const recentTRs = trueRanges.slice(-atrPeriod);
+    return recentTRs.reduce((sum, v) => sum + v, 0) / recentTRs.length;
+  }
+
+  /**
+   * Compute volume ratio: current volume vs SMA(volume, volumeSmaPeriod).
+   * Returns ratio >= 1.0 when volume is above average.
+   */
+  private computeVolumeRatio(klines: BinanceKline[]): number {
+    const { volumeSmaPeriod } = this.config;
+    if (klines.length < volumeSmaPeriod + 1) return 0;
+
+    const volumes = klines.map((k) => parseFloat(k.volume));
+    const currentVolume = volumes[volumes.length - 1];
+    const smaVolumes = volumes.slice(-(volumeSmaPeriod + 1), -1);
+    const smaVolume = smaVolumes.reduce((sum, v) => sum + v, 0) / smaVolumes.length;
+
+    return smaVolume > 0 ? currentVolume / smaVolume : 0;
+  }
+
+  /**
    * Evaluate the trigger for a single symbol using its kline data.
+   * Breakout requires: Price > HighLine + (k * ATR) AND Volume > SMA(Vol, 20) * 1.5
    */
   evaluate(symbol: string, klines: BinanceKline[]): PriceChannelState {
     const highLine = this.computeHighLine(klines);
     const lowLine = this.computeLowLine(klines);
+    const atr = this.computeATR(klines);
+    const volumeRatio = this.computeVolumeRatio(klines);
 
     const lastKline = klines[klines.length - 1];
     const currentPrice = parseFloat(lastKline.close);
 
-    const isTriggered = currentPrice > highLine;
+    const atrBuffer = this.config.atrMultiplier * atr;
+    const atrBufferedHighLine = highLine + atrBuffer;
+    const priceBreakout = currentPrice > atrBufferedHighLine;
+    const volumeConfirmed = volumeRatio >= this.config.volumeSpikeMultiplier;
+    const isTriggered = priceBreakout && volumeConfirmed;
 
     return {
       symbol,
@@ -106,6 +160,10 @@ export class PriceChannelTrigger {
       lowLine,
       currentPrice,
       isTriggered,
+      atr,
+      atrBufferedHighLine,
+      volumeConfirmed,
+      volumeRatio,
       klines,
     };
   }
@@ -115,8 +173,12 @@ export class PriceChannelTrigger {
    * and return only those in an "Institutional Inflow State."
    */
   async scanBatch(symbols: string[]): Promise<PriceChannelState[]> {
-    const { highPeriod, smaPeriod, offset } = this.config;
-    const klineLimit = highPeriod + smaPeriod + offset + 5;
+    const { highPeriod, smaPeriod, offset, atrPeriod, volumeSmaPeriod } = this.config;
+    const klineLimit = Math.max(
+      highPeriod + smaPeriod + offset + 5,
+      atrPeriod + 5,
+      volumeSmaPeriod + 5,
+    );
 
     logger.info(
       { symbols: symbols.length, klineLimit, config: this.config },
@@ -144,9 +206,12 @@ export class PriceChannelTrigger {
               symbol,
               price: state.currentPrice.toFixed(4),
               highLine: state.highLine.toFixed(4),
+              atrBuffered: state.atrBufferedHighLine.toFixed(4),
+              atr: state.atr.toFixed(4),
+              volumeRatio: state.volumeRatio.toFixed(2),
               lowLine: state.lowLine.toFixed(4),
             },
-            'TRIGGERED: Institutional Inflow State',
+            'TRIGGERED: ATR-Confirmed Breakout + Volume Spike',
           );
         }
       } catch (err) {

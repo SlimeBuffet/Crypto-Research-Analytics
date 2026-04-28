@@ -14,6 +14,10 @@ export interface PriceChannelState {
   lowLine: number;
   currentPrice: number;
   isTriggered: boolean;
+  atr: number;
+  atrBufferedHighLine: number;
+  volumeConfirmed: boolean;
+  volumeRatio: number;
   klines: BinanceKline[];
 }
 
@@ -22,6 +26,10 @@ export interface TriggerConfig {
   lowPeriod: number;    // Lookback for lowest lows (default: 8)
   smaPeriod: number;    // SMA smoothing period (default: 5)
   offset: number;       // Channel offset (default: 0)
+  atrPeriod: number;    // ATR lookback period (default: 14)
+  atrMultiplier: number; // ATR buffer multiplier k (default: 0.75)
+  volumeSmaPeriod: number; // Volume SMA lookback (default: 20)
+  volumeSpikeMultiplier: number; // Min volume vs SMA ratio (default: 1.5)
 }
 
 // ---------------------------------------------------------------------------
@@ -85,8 +93,21 @@ export interface SecurityAuditResult {
 // Pillar C: Liquidity & Execution
 // ---------------------------------------------------------------------------
 
+export type ExecutionPriority = 'HIGH' | 'MEDIUM' | 'LOW';
+
+export interface ExecutionTask {
+  coin: CoinData;
+  priority: ExecutionPriority;
+  alphaScore: number;
+  positionSizeUsd: number;
+  strategy: 'VWAP' | 'TWAP';
+  numSlices: number;
+  intervalMs: number;
+}
+
 export interface ExecutionPlan {
   symbol: string;
+  priority: ExecutionPriority;
   orderBookAnalysis: OrderBookAnalysis;
   executionStrategy: ExecutionStrategy;
   routingPlan: RoutingPlan;
@@ -134,9 +155,19 @@ export interface RouteAllocation {
 // Pillar D: Global Macro Overlay
 // ---------------------------------------------------------------------------
 
+export interface BtcCrashGate {
+  btcPrice: number;
+  btcEma200: number;
+  btcChange1h: number;
+  isBelowEma200: boolean;
+  isCrashing: boolean;
+  isGateLocked: boolean;
+}
+
 export interface MacroState {
   dxy: DxyState;
   fedRate: FedRateState;
+  btcCrashGate: BtcCrashGate;
   riskMultiplier: number;
   signal: 'GREEN' | 'YELLOW' | 'RED';
   recommendation: string;
