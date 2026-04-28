@@ -198,7 +198,7 @@ export class ScannerEngine {
         marketCap,
         fullyDilutedValuation: fdv,
         volume24h: disc.volume24h,
-        fdvMcRatio: marketCap > 0 ? fdv / marketCap : 1,
+        fdvMcRatio: marketCap > 0 ? fdv / marketCap : 0,
 
         circulatingSupply: enrich?.circulatingSupply || 0,
         totalSupply: enrich?.totalSupply || 0,

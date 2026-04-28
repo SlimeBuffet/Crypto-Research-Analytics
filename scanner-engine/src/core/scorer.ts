@@ -53,10 +53,10 @@ export class AlphaScorer {
     let score = 0;
 
     if (fdvRatio > 0 && fdvRatio < 1.2) score = 5;
-    else if (fdvRatio < 1.5) score = 4;
-    else if (fdvRatio < 2.0) score = 3;
-    else if (fdvRatio < 3.0) score = 2;
-    else if (fdvRatio < 5.0) score = 1;
+    else if (fdvRatio >= 1.2 && fdvRatio < 1.5) score = 4;
+    else if (fdvRatio >= 1.5 && fdvRatio < 2.0) score = 3;
+    else if (fdvRatio >= 2.0 && fdvRatio < 3.0) score = 2;
+    else if (fdvRatio >= 3.0 && fdvRatio < 5.0) score = 1;
 
     if (coin.maxSupply && coin.circulatingSupply > 0) {
       const circRatio = coin.circulatingSupply / coin.maxSupply;
