@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,6 +33,25 @@
             --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --nav-bg: rgba(10, 14, 23, 0.95);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f3f4f6;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-hover: #f9fafb;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --accent-green: #059669;
+            --accent-red: #dc2626;
+            --accent-blue: #2563eb;
+            --accent-purple: #7c3aed;
+            --accent-orange: #d97706;
+            --accent-pink: #db2777;
+            --border-color: #e2e8f0;
+            --nav-bg: rgba(255, 255, 255, 0.95);
         }
 
         body {
@@ -41,6 +60,123 @@
             color: var(--text-primary);
             line-height: 1.6;
             min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Navigation */
+        .top-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: var(--nav-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            transition: background 0.3s;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .nav-logo-sm {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .nav-brand-text {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 4px;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: var(--bg-card);
+        }
+
+        .nav-links a.active {
+            color: var(--accent-purple);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-action-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .nav-action-btn:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent-blue);
         }
 
         .container {
@@ -55,7 +191,7 @@
             border-bottom: 1px solid var(--border-color);
             padding: 20px 0;
             position: sticky;
-            top: 0;
+            top: 60px;
             z-index: 100;
             backdrop-filter: blur(10px);
         }
@@ -545,6 +681,18 @@
             .search-input {
                 min-width: 100%;
             }
+
+            .nav-links {
+                display: none;
+            }
+
+            .top-nav {
+                padding: 0 12px;
+            }
+
+            .nav-action-btn span {
+                display: none;
+            }
         }
 
         /* Animations */
@@ -624,6 +772,27 @@
     </style>
 </head>
 <body>
+    <!-- Navigation -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <a href="index.html" class="nav-brand">
+                <div class="nav-logo-sm">CR</div>
+                <span class="nav-brand-text">Crypto Research</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="crypto-scanner.html">Scanner</a>
+                <a href="crypto-analyzer.html" class="active">Analyzer</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="nav-action-btn" onclick="exportAnalyzerCSV()" title="Export CSV">
+                &#128196; <span>Export CSV</span>
+            </button>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode" id="themeBtn">&#127769;</button>
+        </div>
+    </nav>
+
     <header>
         <div class="container header-content">
             <div class="logo">
@@ -1164,6 +1333,51 @@
 
         // Initial render
         renderCards(cryptoData);
+
+        // ============ THEME ============
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('cryptoTheme', next);
+            document.getElementById('themeBtn').innerHTML = next === 'dark' ? '&#127769;' : '&#9728;';
+        }
+
+        (function initTheme() {
+            const saved = localStorage.getItem('cryptoTheme') || 'dark';
+            document.documentElement.setAttribute('data-theme', saved);
+            const btn = document.getElementById('themeBtn');
+            if (btn) btn.innerHTML = saved === 'dark' ? '&#127769;' : '&#9728;';
+        })();
+
+        // ============ EXPORT CSV ============
+        function exportAnalyzerCSV() {
+            const headers = ['Rank','Name','Ticker','Sector','Market Cap (USD)','Volume 24h (USD)','FDV (USD)','FDV/MC Ratio','24h Change (%)','7d Change (%)','30d Change (%)','Score','Upside Reasons','Main Risks','Binance Pairs'];
+            const rows = cryptoData.map(coin => {
+                const fdvRatio = (coin.fdv / coin.marketCap).toFixed(2);
+                return [
+                    coin.rank, coin.name, coin.ticker, coin.sectorName,
+                    coin.marketCap, coin.volume24h, coin.fdv, fdvRatio,
+                    coin.priceChange24h, coin.priceChange7d, coin.priceChange30d,
+                    coin.score,
+                    coin.reasons.join(' | '),
+                    coin.risks.join(' | '),
+                    coin.binancePair
+                ];
+            });
+            let csv = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(val => `"${val}"`).join(',') + '\n';
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'crypto-analyzer-results.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
     </script>
 </body>
 </html>
