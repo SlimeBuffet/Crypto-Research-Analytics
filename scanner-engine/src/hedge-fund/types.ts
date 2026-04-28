@@ -156,6 +156,267 @@ export interface FedRateState {
 }
 
 // ---------------------------------------------------------------------------
+// Module 1: On-Chain Analytics
+// ---------------------------------------------------------------------------
+
+export interface OnChainAnalytics {
+  symbol: string;
+  walletConcentration: WalletConcentration;
+  smartMoneyFlow: SmartMoneyFlow;
+  unlockSchedule: UnlockScheduleInfo;
+  protocolRevenue: ProtocolRevenue;
+}
+
+export interface WalletConcentration {
+  giniCoefficient: number;
+  top10HoldersPct: number;
+  top50HoldersPct: number;
+  isConcentrated: boolean;
+}
+
+export interface SmartMoneyFlow {
+  netFlowUsd24h: number;
+  smartMoneyBuying: boolean;
+  whaleTransactions: number;
+  avgWhaleSize: number;
+}
+
+export interface UnlockScheduleInfo {
+  nextUnlockDate: number | null;
+  nextUnlockPct: number;
+  totalLockedPct: number;
+  unlockRisk: 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN';
+}
+
+export interface ProtocolRevenue {
+  dailyRevenueUsd: number;
+  weeklyRevenueUsd: number;
+  revenueMcRatio: number;
+  isProfitable: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Module 2: Market Microstructure
+// ---------------------------------------------------------------------------
+
+export interface MicrostructureAnalysis {
+  symbol: string;
+  fundingRate: FundingRateAnalysis;
+  openInterest: OpenInterestAnalysis;
+  liquidationMap: LiquidationHeatmap;
+  cvd: CumulativeVolumeDelta;
+}
+
+export interface FundingRateAnalysis {
+  currentRate: number;
+  avgRate8h: number;
+  isNegative: boolean;
+  squeezePotential: 'HIGH' | 'MEDIUM' | 'LOW';
+}
+
+export interface OpenInterestAnalysis {
+  currentOI: number;
+  oiChange24h: number;
+  oiChangePct: number;
+  isSpike: boolean;
+}
+
+export interface LiquidationHeatmap {
+  longLiquidationLevels: LiquidationLevel[];
+  shortLiquidationLevels: LiquidationLevel[];
+  nearestLiquidationPct: number;
+}
+
+export interface LiquidationLevel {
+  price: number;
+  estimatedVolumeUsd: number;
+  distancePct: number;
+}
+
+export interface CumulativeVolumeDelta {
+  delta24h: number;
+  deltaTrend: 'BULLISH' | 'BEARISH' | 'NEUTRAL';
+  buyVolumePct: number;
+  sellVolumePct: number;
+}
+
+// ---------------------------------------------------------------------------
+// Module 3: Backtesting & Simulation
+// ---------------------------------------------------------------------------
+
+export interface BacktestConfig {
+  startDate: number;
+  endDate: number;
+  initialCapital: number;
+  positionSizePct: number;
+  stopLossPct: number;
+  takeProfitPct: number;
+}
+
+export interface BacktestResult {
+  totalReturn: number;
+  annualizedReturn: number;
+  sharpeRatio: number;
+  maxDrawdown: number;
+  winRate: number;
+  totalTrades: number;
+  profitFactor: number;
+  trades: BacktestTrade[];
+  equityCurve: EquityPoint[];
+}
+
+export interface BacktestTrade {
+  symbol: string;
+  entryPrice: number;
+  exitPrice: number;
+  entryTime: number;
+  exitTime: number;
+  returnPct: number;
+  pnlUsd: number;
+  side: 'LONG' | 'SHORT';
+}
+
+export interface EquityPoint {
+  timestamp: number;
+  equity: number;
+  drawdown: number;
+}
+
+export interface MonteCarloResult {
+  simulations: number;
+  medianReturn: number;
+  percentile5: number;
+  percentile95: number;
+  probabilityOfProfit: number;
+  maxDrawdownMedian: number;
+  confidenceInterval: { lower: number; upper: number };
+}
+
+// ---------------------------------------------------------------------------
+// Module 4: Portfolio Management
+// ---------------------------------------------------------------------------
+
+export interface PortfolioState {
+  positions: Position[];
+  totalValue: number;
+  totalPnl: number;
+  totalPnlPct: number;
+  cashBalance: number;
+  maxDrawdown: number;
+  isCircuitBreakerActive: boolean;
+}
+
+export interface Position {
+  symbol: string;
+  entryPrice: number;
+  currentPrice: number;
+  quantity: number;
+  valueUsd: number;
+  pnlUsd: number;
+  pnlPct: number;
+  allocationPct: number;
+  stopLoss: number;
+  takeProfit: number;
+  entryTime: number;
+}
+
+export interface KellyResult {
+  kellyFraction: number;
+  halfKelly: number;
+  recommendedAllocation: number;
+  winProbability: number;
+  avgWinLossRatio: number;
+}
+
+export interface RebalanceAction {
+  symbol: string;
+  action: 'BUY' | 'SELL' | 'HOLD';
+  currentAllocationPct: number;
+  targetAllocationPct: number;
+  deltaUsd: number;
+}
+
+// ---------------------------------------------------------------------------
+// Module 5: Real-time Alerts
+// ---------------------------------------------------------------------------
+
+export interface AlertConfig {
+  telegramBotToken: string | null;
+  telegramChatId: string | null;
+  discordWebhookUrl: string | null;
+  priceAlertThresholdPct: number;
+  volumeSpikeMultiplier: number;
+  enableWebSocket: boolean;
+}
+
+export interface Alert {
+  id: string;
+  type: AlertType;
+  symbol: string;
+  message: string;
+  severity: 'INFO' | 'WARNING' | 'CRITICAL';
+  timestamp: number;
+  data: Record<string, unknown>;
+}
+
+export type AlertType =
+  | 'PRICE_SPIKE'
+  | 'VOLUME_SPIKE'
+  | 'TRIGGER_ACTIVATED'
+  | 'STOP_LOSS_HIT'
+  | 'TAKE_PROFIT_HIT'
+  | 'MACRO_SIGNAL_CHANGE'
+  | 'WHALE_MOVEMENT'
+  | 'FUNDING_RATE_EXTREME'
+  | 'LIQUIDATION_CASCADE';
+
+export interface WebSocketFeed {
+  symbol: string;
+  price: number;
+  volume: number;
+  timestamp: number;
+  bidPrice: number;
+  askPrice: number;
+}
+
+// ---------------------------------------------------------------------------
+// Module 6: Narrative/Catalyst Engine
+// ---------------------------------------------------------------------------
+
+export interface NarrativeAnalysis {
+  symbol: string;
+  devActivity: DevActivityMetrics;
+  catalysts: CatalystEvent[];
+  sectorFlow: SectorRotation;
+  narrativeScore: number;
+}
+
+export interface DevActivityMetrics {
+  weeklyCommits: number;
+  monthlyCommits: number;
+  contributors: number;
+  lastCommitDaysAgo: number;
+  isActive: boolean;
+}
+
+export interface CatalystEvent {
+  type: 'LISTING' | 'PARTNERSHIP' | 'UPGRADE' | 'UNLOCK' | 'AIRDROP' | 'GOVERNANCE';
+  description: string;
+  date: number | null;
+  impactEstimate: 'HIGH' | 'MEDIUM' | 'LOW';
+  source: string;
+}
+
+export interface SectorRotation {
+  sector: string;
+  inflowUsd7d: number;
+  outflowUsd7d: number;
+  netFlow: number;
+  trendDirection: 'INFLOW' | 'OUTFLOW' | 'NEUTRAL';
+  sectorRank: number;
+}
+
+// ---------------------------------------------------------------------------
 // Orchestrator / Pipeline
 // ---------------------------------------------------------------------------
 
@@ -174,6 +435,9 @@ export interface PipelineResult {
   risk: RiskAssessment;
   macro: MacroState;
   execution: ExecutionPlan | null;
+  onchain: OnChainAnalytics | null;
+  microstructure: MicrostructureAnalysis | null;
+  narrative: NarrativeAnalysis | null;
   finalVerdict: 'EXECUTE' | 'HOLD' | 'REJECT';
   rejectionReason: string | null;
   timestamp: number;
