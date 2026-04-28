@@ -67,7 +67,7 @@ export class MobulaAdapter {
             priceChange7d: coin.price_change_7d || 0,
             priceChange30d: coin.price_change_30d || 0,
             sector: coin.tags?.[0] || 'Other',
-            categories: coin.tags || [],
+            categories: Array.isArray(coin.tags) ? coin.tags : [],
             source: 'mobula',
           };
 

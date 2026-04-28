@@ -18,7 +18,7 @@ import {
 } from '../types';
 
 const DEFAULT_CONFIG: IngestorConfig = {
-  binanceWsUrl: 'wss://stream.binance.com:9443/ws',
+  binanceWsUrl: process.env.BINANCE_WS_URL || 'wss://data-stream.binance.vision/ws',
   heliusRpcUrl: process.env.HELIUS_RPC_URL || null,
   maxStreams: 50,
   reconnectIntervalMs: 5000,

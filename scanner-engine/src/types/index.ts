@@ -168,6 +168,41 @@ export interface CoinCapResponse {
 }
 
 // ---------------------------------------------------------------------------
+// LunarCrush API response types
+// ---------------------------------------------------------------------------
+
+export interface LunarCrushCoinData {
+  id: number;
+  symbol: string;
+  name: string;
+  galaxy_score: number | null;
+  alt_rank: number | null;
+  social_volume: number | null;
+  social_score: number | null;
+  social_contributors: number | null;
+  social_dominance: number | null;
+  market_cap: number | null;
+  volume_24h: number | null;
+  percent_change_24h: number | null;
+  percent_change_7d: number | null;
+  percent_change_30d: number | null;
+}
+
+export interface LunarCrushResponse {
+  data: LunarCrushCoinData[];
+}
+
+export interface SentimentData {
+  galaxyScore: number;
+  altRank: number;
+  socialVolume: number;
+  socialScore: number;
+  socialContributors: number;
+  socialDominance: number;
+  source: string;
+}
+
+// ---------------------------------------------------------------------------
 // Internal domain types
 // ---------------------------------------------------------------------------
 

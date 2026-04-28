@@ -15,7 +15,8 @@ async function main(): Promise<void> {
 
   const top = results.slice(0, 20);
   for (const coin of top) {
-    const sectors = coin.categories.length > 0 ? coin.categories.slice(0, 3).join(', ') : coin.sector;
+    const cats = Array.isArray(coin.categories) ? coin.categories : [];
+    const sectors = cats.length > 0 ? cats.slice(0, 3).join(', ') : coin.sector;
     logger.info(
       {
         rank: top.indexOf(coin) + 1,

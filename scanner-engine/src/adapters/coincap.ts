@@ -4,11 +4,11 @@ import { TtlCache } from '../utils/cache';
 import { fetchWithBackoff } from '../utils/fetcher';
 import { logger } from '../utils/logger';
 
-const BASE_URL = 'https://api.coincap.io/v2';
+const COINCAP_URL = process.env.COINCAP_BASE_URL || 'https://rest.coincap.io/v3';
 
 /**
- * CoinCap API adapter — fallback data source.
- * Used when CryptoRank and Mobula are unavailable.
+ * CoinCap v3 adapter for enrichment data.
+ * Requires an API key via Authorization: Bearer header.
  */
 export class CoinCapAdapter {
   constructor(
@@ -39,8 +39,8 @@ export class CoinCapAdapter {
 
     try {
       const data = await fetchWithBackoff<CoinCapResponse>(
-        `${BASE_URL}/assets?limit=2000`,
-        { headers, label: 'coincap/assets' },
+        `${COINCAP_URL}/assets?limit=2000`,
+        { headers, label: 'coincap/assets', retries: 2 },
       );
 
       const symbolSet = new Set(uncached.map((s) => s.toUpperCase()));
@@ -71,8 +71,8 @@ export class CoinCapAdapter {
       }
 
       logger.info(
-        { requested: uncached.length, found: results.size - (symbols.length - uncached.length) },
-        'CoinCap fallback enrichment complete',
+        { requested: uncached.length, found: results.size },
+        'CoinCap enrichment complete',
       );
     } catch (err) {
       const error = err as Error;

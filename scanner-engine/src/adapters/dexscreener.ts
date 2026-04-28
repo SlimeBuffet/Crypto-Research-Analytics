@@ -32,13 +32,14 @@ export class DexScreenerAdapter {
       if (!data.pairs || data.pairs.length === 0) return null;
 
       const bestPair = data.pairs.reduce((best, pair) => {
-        if (!best || pair.liquidity.usd > best.liquidity.usd) return pair;
-        return best;
+        const pairLiq = pair.liquidity?.usd ?? 0;
+        const bestLiq = best.liquidity?.usd ?? 0;
+        return pairLiq > bestLiq ? pair : best;
       });
 
       const result: OnChainData = {
-        dexLiquidity: bestPair.liquidity.usd,
-        dexVolume24h: bestPair.volume.h24,
+        dexLiquidity: bestPair.liquidity?.usd ?? 0,
+        dexVolume24h: bestPair.volume?.h24 ?? 0,
         dexTxns24h:
           (bestPair.txns?.h24?.buys || 0) + (bestPair.txns?.h24?.sells || 0),
         verifiedFdv: bestPair.fdv || null,
