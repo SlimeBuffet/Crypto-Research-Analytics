@@ -53,6 +53,7 @@ export class MobulaAdapter {
       if (data.data) {
         for (const coin of data.data) {
           const enrichment: EnrichmentData = {
+            name: coin.name,
             marketCap: coin.market_cap || 0,
             fullyDilutedValuation: coin.fully_diluted_valuation || 0,
             circulatingSupply: coin.circulating_supply || 0,

@@ -190,7 +190,7 @@ export class ScannerEngine {
       const coin: CoinData = {
         id: disc.symbol.toLowerCase(),
         symbol: disc.symbol,
-        name: enrich ? disc.symbol : disc.symbol,
+        name: enrich?.name || disc.symbol,
         binancePair: disc.binancePair,
         chain: onChain?.chain || null,
 

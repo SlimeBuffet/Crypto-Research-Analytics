@@ -55,6 +55,7 @@ export class CryptoRankAdapter {
           if (!usd) continue;
 
           const enrichment: EnrichmentData = {
+            name: coin.name,
             marketCap: usd.marketCap || 0,
             fullyDilutedValuation: usd.fullyDilutedValuation || 0,
             circulatingSupply: usd.circulatingSupply || 0,

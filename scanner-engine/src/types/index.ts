@@ -232,6 +232,7 @@ export interface DiscoveryResult {
 
 /** Enrichment result from Stage 2 */
 export interface EnrichmentData {
+  name: string;
   marketCap: number;
   fullyDilutedValuation: number;
   circulatingSupply: number;

@@ -50,6 +50,7 @@ export class CoinCapAdapter {
         if (!symbolSet.has(sym)) continue;
 
         const enrichment: EnrichmentData = {
+          name: asset.name,
           marketCap: parseFloat(asset.marketCapUsd) || 0,
           fullyDilutedValuation:
             asset.maxSupply
