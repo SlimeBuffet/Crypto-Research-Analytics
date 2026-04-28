@@ -44,10 +44,17 @@ export class RpcAdapter {
     const quicknodeUrl = this.keyManager.getKey(quicknodeServiceMap[chain]);
     if (quicknodeUrl) return quicknodeUrl;
 
-    // Alchemy — only serves Ethereum
-    if (chain === 'ethereum') {
+    // Alchemy — supports multiple chains
+    const alchemyChainMap: Record<string, string> = {
+      ethereum: 'eth-mainnet',
+      bsc: 'bnb-mainnet',
+      worldchain: 'worldchain-mainnet',
+    };
+
+    const alchemyChainSlug = alchemyChainMap[chain];
+    if (alchemyChainSlug) {
       const alchemyKey = this.keyManager.getKey('alchemy');
-      if (alchemyKey) return `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey}`;
+      if (alchemyKey) return `https://${alchemyChainSlug}.g.alchemy.com/v2/${alchemyKey}`;
     }
 
     // Public fallback for BSC
