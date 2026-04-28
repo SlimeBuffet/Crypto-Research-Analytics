@@ -51,17 +51,28 @@ scanner-engine/
 │   │   ├── rpc.ts          # Alchemy/QuickNode RPC (Stage 3)
 │   │   └── index.ts
 │   ├── core/               # Core engine logic
-│   │   ├── api-key-manager.ts  # API key rotation manager
-│   │   ├── scanner-engine.ts   # Main pipeline orchestrator
-│   │   ├── scorer.ts           # Alpha Score calculator
+│   │   ├── api-key-manager.ts    # API key rotation manager
+│   │   ├── scanner-engine.ts     # 4-stage pipeline orchestrator
+│   │   ├── hedge-fund-engine.ts  # Hedge Fund 5-unit orchestrator
+│   │   ├── scorer.ts             # Alpha Score calculator
+│   │   └── index.ts
+│   ├── trigger/            # Technical trigger filters
+│   │   ├── price-channel.ts  # SMA High/Low (8,5) filter
+│   │   └── index.ts
+│   ├── pillars/            # 4-Pillar analysis modules
+│   │   ├── alpha-intelligence.ts  # Pillar A: Multi-Factor Alpha
+│   │   ├── risk-engine.ts         # Pillar B: Risk & Security
+│   │   ├── liquidity-execution.ts # Pillar C: Execution & Routing
+│   │   ├── macro-overlay.ts       # Pillar D: DXY & Macro
 │   │   └── index.ts
 │   ├── types/              # TypeScript interfaces
-│   │   └── index.ts
+│   │   ├── index.ts        # Core scanner types
+│   │   └── hedge-fund.ts   # Hedge fund system types
 │   ├── utils/              # Shared utilities
 │   │   ├── cache.ts        # TTL cache implementation
 │   │   ├── fetcher.ts      # HTTP client with backoff + concurrency
 │   │   └── logger.ts       # Pino logger with key masking
-│   └── index.ts            # Entry point
+│   └── index.ts            # Entry point (scanner / hedge-fund mode)
 ├── .env.example            # Environment template
 ├── .eslintrc.json
 ├── package.json
@@ -129,6 +140,75 @@ Each coin is scored across 5 dimensions:
 | **Market Cap** | 5 | Lower MC = higher score (10x potential) |
 | **Momentum** | 5 | 7d & 30d price change trends |
 | **On-chain** | 5 | DEX transactions, DEX/CEX volume ratio, liquidity/MC ratio |
+
+## Hedge Fund Intelligence & Execution Engine
+
+On top of the base scanner, the system implements a **4-Pillar institutional analysis model** with a technical trigger:
+
+```
+╔══════════════════════════════════════════════════════════════════════╗
+║           HEDGE FUND INTELLIGENCE & EXECUTION SYSTEM                ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  ┌─────────────┐                                                     ║
+║  │ Trigger Unit │  SMA High/Low (8,5) — "Institutional Inflow State" ║
+║  │   (Filter)   │  Price > High Line → Proceed to analysis           ║
+║  └──────┬──────┘                                                     ║
+║         │                                                            ║
+║  ┌──────▼──────────────────────────────────────────────────────┐     ║
+║  │               4-PILLAR VERIFICATION SCAN                     │     ║
+║  ├──────────────┬──────────────┬──────────────┬────────────────┤     ║
+║  │  Pillar A    │  Pillar B    │  Pillar C    │   Pillar D     │     ║
+║  │  The Brain   │  The Shield  │  The Sword   │   The Compass  │     ║
+║  │              │              │              │                │     ║
+║  │ • Value Score│ • Correlation│ • Order Book │ • DXY Level    │     ║
+║  │ • Momentum   │   Matrix     │   Depth      │ • Fed Rates    │     ║
+║  │   vs BTC     │ • VaR (95%)  │ • VWAP/TWAP  │ • Breakout     │     ║
+║  │ • Sentiment  │ • Security   │ • Smart Route│   Detection    │     ║
+║  │ • Whale Flow │   Audit      │ • Slippage   │ • Risk Mult.   │     ║
+║  └──────────────┴──────────────┴──────────────┴────────────────┘     ║
+║         │                                                            ║
+║  ┌──────▼──────┐                                                     ║
+║  │   Verdict    │  STRONG_BUY │ BUY │ WATCH │ REJECT                 ║
+║  │  + Position  │  Composite score + position sizing                 ║
+║  └─────────────┘                                                     ║
+╚══════════════════════════════════════════════════════════════════════╝
+```
+
+### Running Hedge Fund Mode
+
+```bash
+# Development
+npm run dev:hf
+
+# Production
+npm run start:hf
+
+# Or set ENGINE_MODE=hedge-fund in .env
+```
+
+### Workflow Architecture
+
+| Component | Function | System Behavior |
+|-----------|----------|-----------------|
+| **Trigger Unit** | SMA High/Low (8,5) | Determines which coins qualify for deeper analysis |
+| **Intelligence Unit** | Alpha & Sentiment | Finds the "truth" behind price movements (Whale/Narrative) |
+| **Gatekeeper Unit** | Risk & Security | Blocks scam coins and prevents sector over-exposure |
+| **Macro Unit** | DXY & Rates | Provides "green light" or "yellow light" based on global conditions |
+| **Execution Unit** | VWAP/TWAP | Enters positions smoothly without market impact |
+
+### Hedge Fund Parameters
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ENGINE_MODE` | `scanner` | `scanner` or `hedge-fund` |
+| `SMA_HIGH_PERIOD` | `8` | Price channel high period |
+| `SMA_SMOOTH_PERIOD` | `5` | SMA smoothing period |
+| `CORRELATION_THRESHOLD` | `0.8` | Max correlation for portfolio diversification |
+| `VAR_CONFIDENCE` | `0.95` | Value at Risk confidence level |
+| `MAX_SLIPPAGE_PCT` | `1.0` | Max acceptable execution slippage |
+| `MAX_POSITION_SIZE_PCT` | `5.0` | Max position size as % of portfolio |
+| `DXY_BREAKOUT_THRESHOLD` | `2.0` | DXY breakout sensitivity (std devs) |
 
 ## Security
 

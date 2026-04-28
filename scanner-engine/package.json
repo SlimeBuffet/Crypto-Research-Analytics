@@ -7,6 +7,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
+    "dev:hf": "ENGINE_MODE=hedge-fund ts-node src/index.ts",
+    "start:hf": "ENGINE_MODE=hedge-fund node dist/index.js",
     "lint": "eslint src/ --ext .ts",
     "typecheck": "tsc --noEmit"
   },
