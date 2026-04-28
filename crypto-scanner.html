@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crypto 10x Potential Scanner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -11,12 +14,188 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-body: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%);
+            --bg-card: rgba(255, 255, 255, 0.08);
+            --bg-card-solid: #1a1a3e;
+            --bg-input: rgba(255, 255, 255, 0.1);
+            --bg-code: rgba(0, 0, 0, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
+            --text-muted: #6b7280;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --border-hover: rgba(0, 255, 136, 0.3);
+            --accent-green: #00ff88;
+            --accent-blue: #00d9ff;
+            --accent-red: #ff6b6b;
+            --accent-yellow: #ffd700;
+            --card-hover-shadow: 0 20px 40px rgba(0, 255, 136, 0.2);
+            --score-bg: rgba(0, 255, 136, 0.1);
+            --score-border: rgba(0, 255, 136, 0.3);
+            --disclaimer-bg: rgba(255, 107, 107, 0.1);
+            --disclaimer-border: rgba(255, 107, 107, 0.3);
+            --nav-bg: rgba(15, 15, 35, 0.95);
+        }
+
+        [data-theme="light"] {
+            --bg-body: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 50%, #f0f4f8 100%);
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --bg-card-solid: #ffffff;
+            --bg-input: rgba(0, 0, 0, 0.05);
+            --bg-code: rgba(0, 0, 0, 0.06);
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --border-color: rgba(0, 0, 0, 0.12);
+            --border-hover: rgba(16, 185, 129, 0.4);
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --card-hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            --score-bg: rgba(16, 185, 129, 0.1);
+            --score-border: rgba(16, 185, 129, 0.3);
+            --disclaimer-bg: rgba(239, 68, 68, 0.06);
+            --disclaimer-border: rgba(239, 68, 68, 0.2);
+            --nav-bg: rgba(255, 255, 255, 0.95);
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%);
-            color: #ffffff;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
             min-height: 100vh;
             padding: 20px;
+            padding-top: 80px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Navigation */
+        .top-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: var(--nav-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            transition: background 0.3s;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .nav-logo {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .nav-brand-text {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 4px;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: var(--bg-input);
+        }
+
+        .nav-links a.active {
+            color: var(--accent-blue);
+            background: rgba(0, 217, 255, 0.1);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .theme-toggle {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .nav-action-btn {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .nav-action-btn:hover {
+            border-color: var(--accent-blue);
+            background: rgba(0, 217, 255, 0.1);
+        }
+
+        .watchlist-count {
+            background: var(--accent-green);
+            color: #0f0f23;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
         }
 
         .container {
@@ -28,11 +207,11 @@
         .header {
             text-align: center;
             padding: 40px 20px;
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--bg-card);
             border-radius: 20px;
             margin-bottom: 30px;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
         }
 
         .logo {
@@ -46,7 +225,7 @@
         }
 
         .subtitle {
-            color: #a0a0c0;
+            color: var(--text-secondary);
             font-size: 1.2em;
             margin-bottom: 30px;
         }
@@ -60,11 +239,11 @@
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.08);
+            background: var(--bg-card);
             padding: 20px;
             border-radius: 15px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
             transition: transform 0.3s ease;
         }
 
@@ -75,22 +254,22 @@
         .stat-value {
             font-size: 2em;
             font-weight: bold;
-            color: #00ff88;
+            color: var(--accent-green);
         }
 
         .stat-label {
-            color: #a0a0c0;
+            color: var(--text-secondary);
             font-size: 0.9em;
             margin-top: 5px;
         }
 
         /* Control Panel */
         .control-panel {
-            background: rgba(255, 255, 255, 0.08);
+            background: var(--bg-card);
             padding: 30px;
             border-radius: 20px;
             margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
         }
 
         .scan-btn {
@@ -131,7 +310,7 @@
         }
 
         .filter-group label {
-            color: #a0a0c0;
+            color: var(--text-secondary);
             margin-bottom: 8px;
             font-size: 0.9em;
         }
@@ -139,26 +318,27 @@
         .filter-group select,
         .filter-group input {
             padding: 12px 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
-            color: #ffffff;
+            color: var(--text-primary);
             font-size: 1em;
+            font-family: inherit;
         }
 
         .filter-group select:focus,
         .filter-group input:focus {
             outline: none;
-            border-color: #00ff88;
+            border-color: var(--accent-green);
         }
 
         /* Progress Section */
         .progress-section {
-            background: rgba(255, 255, 255, 0.08);
+            background: var(--bg-card);
             padding: 30px;
             border-radius: 20px;
             margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
             display: none;
         }
 
@@ -186,7 +366,7 @@
         }
 
         .status-log {
-            background: rgba(0, 0, 0, 0.3);
+            background: var(--bg-code);
             padding: 20px;
             border-radius: 10px;
             max-height: 200px;
@@ -202,19 +382,19 @@
         }
 
         .log-entry.info {
-            color: #00d9ff;
+            color: var(--accent-blue);
         }
 
         .log-entry.success {
-            color: #00ff88;
+            color: var(--accent-green);
         }
 
         .log-entry.warning {
-            color: #ffd700;
+            color: var(--accent-yellow);
         }
 
         .log-entry.error {
-            color: #ff6b6b;
+            color: var(--accent-red);
         }
 
         /* Results Grid */
@@ -226,10 +406,10 @@
         }
 
         .crypto-card {
-            background: rgba(255, 255, 255, 0.08);
+            background: var(--bg-card);
             border-radius: 20px;
             padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
             animation: slideIn 0.5s ease;
         }
@@ -247,8 +427,8 @@
 
         .crypto-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.2);
-            border-color: rgba(0, 255, 136, 0.3);
+            box-shadow: var(--card-hover-shadow);
+            border-color: var(--border-hover);
         }
 
         .card-header {
@@ -257,13 +437,13 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--border-color);
         }
 
         .coin-name {
             font-size: 1.5em;
             font-weight: bold;
-            color: #00d9ff;
+            color: var(--accent-blue);
         }
 
         .coin-ticker {
@@ -282,13 +462,13 @@
         }
 
         .metric-item {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--bg-input);
             padding: 12px;
             border-radius: 10px;
         }
 
         .metric-label {
-            color: #a0a0c0;
+            color: var(--text-secondary);
             font-size: 0.8em;
             margin-bottom: 5px;
         }
@@ -296,7 +476,7 @@
         .metric-value {
             font-size: 1.1em;
             font-weight: bold;
-            color: #ffffff;
+            color: var(--text-primary);
         }
 
         .price-movement {
@@ -304,7 +484,7 @@
             gap: 10px;
             margin-bottom: 20px;
             padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--bg-input);
             border-radius: 10px;
         }
 
@@ -314,11 +494,11 @@
         }
 
         .price-change.positive {
-            color: #00ff88;
+            color: var(--accent-green);
         }
 
         .price-change.negative {
-            color: #ff6b6b;
+            color: var(--accent-red);
         }
 
         .sector-tag {
@@ -333,7 +513,7 @@
         }
 
         .section-title {
-            color: #00d9ff;
+            color: var(--accent-blue);
             font-size: 1em;
             margin-bottom: 10px;
             font-weight: bold;
@@ -348,7 +528,7 @@
         .reasons-list li,
         .risks-list li {
             padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid var(--border-color);
             font-size: 0.9em;
             line-height: 1.5;
         }
@@ -359,21 +539,21 @@
         }
 
         .binance-pair {
-            background: rgba(255, 215, 0, 0.1);
-            border: 1px solid rgba(255, 215, 0, 0.3);
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
             padding: 10px;
             border-radius: 10px;
             margin-top: 15px;
         }
 
         .binance-pair-label {
-            color: #ffd700;
+            color: var(--accent-yellow);
             font-size: 0.85em;
             margin-bottom: 5px;
         }
 
         .binance-pair-value {
-            color: #ffffff;
+            color: var(--text-primary);
             font-weight: bold;
         }
 
@@ -382,43 +562,187 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px;
-            background: rgba(0, 255, 136, 0.1);
+            background: var(--score-bg);
             border-radius: 10px;
             margin-top: 15px;
-            border: 1px solid rgba(0, 255, 136, 0.3);
+            border: 1px solid var(--score-border);
         }
 
         .score-label {
-            color: #00ff88;
+            color: var(--accent-green);
             font-weight: bold;
         }
 
         .score-value {
             font-size: 1.5em;
             font-weight: bold;
-            color: #00ff88;
+            color: var(--accent-green);
         }
 
         /* Disclaimer */
         .disclaimer {
-            background: rgba(255, 107, 107, 0.1);
-            border: 1px solid rgba(255, 107, 107, 0.3);
+            background: var(--disclaimer-bg);
+            border: 1px solid var(--disclaimer-border);
             padding: 25px;
             border-radius: 15px;
             margin-top: 30px;
         }
 
         .disclaimer-title {
-            color: #ff6b6b;
+            color: var(--accent-red);
             font-size: 1.2em;
             font-weight: bold;
             margin-bottom: 10px;
         }
 
         .disclaimer-text {
-            color: #a0a0c0;
+            color: var(--text-secondary);
             line-height: 1.6;
             font-size: 0.95em;
+        }
+
+        /* Custom Weights Panel */
+        .weights-panel {
+            background: var(--bg-card);
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .weights-panel.active {
+            display: block;
+        }
+
+        .weights-panel h3 {
+            color: var(--accent-blue);
+            margin-bottom: 16px;
+            font-size: 1.1em;
+        }
+
+        .weights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .weight-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .weight-item label {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+
+        .weight-item input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent-green);
+        }
+
+        .weight-value {
+            font-size: 0.8em;
+            color: var(--accent-green);
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .weights-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .btn-secondary {
+            padding: 8px 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-size: 0.9em;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-blue);
+        }
+
+        /* Watchlist Btn on Card */
+        .watchlist-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .watchlist-btn:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+        }
+
+        .watchlist-btn.active {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+        }
+
+        /* Watchlist Panel */
+        .watchlist-panel {
+            background: var(--bg-card);
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid var(--accent-yellow);
+            display: none;
+        }
+
+        .watchlist-panel.active {
+            display: block;
+        }
+
+        .watchlist-panel h3 {
+            color: var(--accent-yellow);
+            margin-bottom: 16px;
+        }
+
+        .watchlist-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .watchlist-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+
+        .watchlist-chip .remove-wl {
+            cursor: pointer;
+            color: var(--accent-red);
+            font-weight: 700;
+        }
+
+        .watchlist-empty {
+            color: var(--text-muted);
+            font-size: 0.9em;
         }
 
         /* Responsive */
@@ -438,6 +762,18 @@
             .filters {
                 grid-template-columns: 1fr;
             }
+
+            .top-nav {
+                padding: 0 12px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .nav-action-btn span.btn-label {
+                display: none;
+            }
         }
 
         .hidden {
@@ -455,10 +791,37 @@
     </style>
 </head>
 <body>
+    <!-- Navigation -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <a href="index.html" class="nav-brand">
+                <div class="nav-logo">CR</div>
+                <span class="nav-brand-text">Crypto Research</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="crypto-scanner.html" class="active">Scanner</a>
+                <a href="crypto-analyzer.html">Analyzer</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="nav-action-btn" onclick="toggleWatchlistPanel()" title="Watchlist">
+                &#9733; <span class="btn-label">Watchlist</span> <span class="watchlist-count" id="wlCount">0</span>
+            </button>
+            <button class="nav-action-btn" onclick="exportCSV()" title="Export CSV">
+                &#128196; <span class="btn-label">Export</span>
+            </button>
+            <button class="nav-action-btn" onclick="toggleWeightsPanel()" title="Custom Weights">
+                &#9878; <span class="btn-label">Weights</span>
+            </button>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode" id="themeBtn">&#127769;</button>
+        </div>
+    </nav>
+
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="logo">🚀 Crypto 10x Scanner</div>
+            <div class="logo">Crypto 10x Scanner</div>
             <div class="subtitle">AI-Powered Binance Listed Cryptocurrency Analyzer</div>
             
             <div class="stats-bar">
@@ -539,6 +902,57 @@
             <div class="status-log" id="statusLog"></div>
         </div>
 
+        <!-- Watchlist Panel -->
+        <div class="watchlist-panel" id="watchlistPanel">
+            <h3>&#9733; Watchlist Anda</h3>
+            <div class="watchlist-items" id="watchlistItems">
+                <span class="watchlist-empty">Belum ada coin di watchlist. Klik bintang pada kartu coin untuk menambahkan.</span>
+            </div>
+            <div class="weights-actions" style="margin-top: 12px;">
+                <button class="btn-secondary" onclick="clearWatchlist()">Hapus Semua</button>
+                <button class="btn-secondary" onclick="exportWatchlistCSV()">Export Watchlist CSV</button>
+            </div>
+        </div>
+
+        <!-- Custom Weights Panel -->
+        <div class="weights-panel" id="weightsPanel">
+            <h3>&#9878; Custom Scoring Weights</h3>
+            <p style="color: var(--text-secondary); font-size: 0.85em; margin-bottom: 16px;">
+                Sesuaikan bobot masing-masing kategori untuk scoring. Perubahan akan diterapkan saat re-scan atau re-filter.
+            </p>
+            <div class="weights-grid">
+                <div class="weight-item">
+                    <label>Liquidity Weight</label>
+                    <input type="range" min="0" max="10" value="5" id="wLiquidity" oninput="updateWeightLabel(this, 'wLiquidityVal')">
+                    <span class="weight-value" id="wLiquidityVal">5</span>
+                </div>
+                <div class="weight-item">
+                    <label>Tokenomics Weight</label>
+                    <input type="range" min="0" max="10" value="5" id="wTokenomics" oninput="updateWeightLabel(this, 'wTokenomicsVal')">
+                    <span class="weight-value" id="wTokenomicsVal">5</span>
+                </div>
+                <div class="weight-item">
+                    <label>Market Cap Weight</label>
+                    <input type="range" min="0" max="10" value="5" id="wMarketCap" oninput="updateWeightLabel(this, 'wMarketCapVal')">
+                    <span class="weight-value" id="wMarketCapVal">5</span>
+                </div>
+                <div class="weight-item">
+                    <label>Momentum Weight</label>
+                    <input type="range" min="0" max="10" value="5" id="wMomentum" oninput="updateWeightLabel(this, 'wMomentumVal')">
+                    <span class="weight-value" id="wMomentumVal">5</span>
+                </div>
+                <div class="weight-item">
+                    <label>Dev Activity Weight</label>
+                    <input type="range" min="0" max="10" value="5" id="wDevActivity" oninput="updateWeightLabel(this, 'wDevActivityVal')">
+                    <span class="weight-value" id="wDevActivityVal">5</span>
+                </div>
+            </div>
+            <div class="weights-actions">
+                <button class="btn-secondary" onclick="resetWeights()">Reset Default</button>
+                <button class="btn-secondary" onclick="saveWeights()">Simpan & Terapkan</button>
+            </div>
+        </div>
+
         <!-- Results Grid -->
         <div class="results-grid" id="resultsGrid"></div>
 
@@ -569,6 +983,181 @@
         let allCoins = [];
         let filteredCoins = [];
         let isScanning = false;
+        let watchlist = JSON.parse(localStorage.getItem('cryptoWatchlist') || '[]');
+        let scoringWeights = JSON.parse(localStorage.getItem('scoringWeights') || '{"liquidity":5,"tokenomics":5,"marketCap":5,"momentum":5,"devActivity":5}');
+
+        // ============ THEME ============
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('cryptoTheme', next);
+            document.getElementById('themeBtn').innerHTML = next === 'dark' ? '&#127769;' : '&#9728;';
+        }
+
+        (function initTheme() {
+            const saved = localStorage.getItem('cryptoTheme') || 'dark';
+            document.documentElement.setAttribute('data-theme', saved);
+            const btn = document.getElementById('themeBtn');
+            if (btn) btn.innerHTML = saved === 'dark' ? '&#127769;' : '&#9728;';
+        })();
+
+        // ============ WATCHLIST ============
+        function isInWatchlist(coinId) {
+            return watchlist.includes(coinId);
+        }
+
+        function toggleWatchlist(coinId, coinName) {
+            const idx = watchlist.indexOf(coinId);
+            if (idx > -1) {
+                watchlist.splice(idx, 1);
+            } else {
+                watchlist.push(coinId);
+            }
+            localStorage.setItem('cryptoWatchlist', JSON.stringify(watchlist));
+            updateWatchlistUI();
+            renderResults();
+        }
+
+        function updateWatchlistUI() {
+            document.getElementById('wlCount').textContent = watchlist.length;
+            const container = document.getElementById('watchlistItems');
+            if (watchlist.length === 0) {
+                container.innerHTML = '<span class="watchlist-empty">Belum ada coin di watchlist. Klik bintang pada kartu coin untuk menambahkan.</span>';
+            } else {
+                container.innerHTML = watchlist.map(id => {
+                    const coin = allCoins.find(c => c.id === id);
+                    const label = coin ? `${coin.name} (${coin.symbol.toUpperCase()})` : id;
+                    return `<span class="watchlist-chip">${label} <span class="remove-wl" onclick="toggleWatchlist('${id}', '')">&times;</span></span>`;
+                }).join('');
+            }
+        }
+
+        function toggleWatchlistPanel() {
+            document.getElementById('watchlistPanel').classList.toggle('active');
+        }
+
+        function clearWatchlist() {
+            watchlist = [];
+            localStorage.setItem('cryptoWatchlist', JSON.stringify(watchlist));
+            updateWatchlistUI();
+            renderResults();
+        }
+
+        // ============ EXPORT CSV ============
+        function exportCSV() {
+            const coins = filteredCoins.length > 0 ? filteredCoins : allCoins;
+            if (coins.length === 0) {
+                alert('Tidak ada data untuk diekspor. Lakukan scan terlebih dahulu.');
+                return;
+            }
+            const headers = ['Name','Symbol','Market Cap (USD)','Volume 24h (USD)','FDV (USD)','FDV/MC Ratio','Price Change 24h (%)','Price Change 7d (%)','Price Change 30d (%)','Sector','Score','Watchlisted'];
+            const rows = coins.map(coin => {
+                const m = coin.market_data;
+                const mc = m.market_cap?.usd || 0;
+                const vol = m.total_volume?.usd || 0;
+                const fdv = m.fully_diluted_valuation?.usd || mc;
+                const fdvRatio = (fdv / (mc || 1)).toFixed(2);
+                const c24 = (m.price_change_percentage_24h || 0).toFixed(2);
+                const c7d = (m.price_change_percentage_7d || 0).toFixed(2);
+                const c30d = (m.price_change_percentage_30d_in_currency?.usd || 0).toFixed(2);
+                const sector = determineSector(coin);
+                const score = calculateScore(coin);
+                const wl = isInWatchlist(coin.id) ? 'Yes' : 'No';
+                return [coin.name, coin.symbol?.toUpperCase(), mc, vol, fdv, fdvRatio, c24, c7d, c30d, sector, score, wl];
+            });
+            let csv = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(val => `"${val}"`).join(',') + '\n';
+            });
+            downloadFile(csv, 'crypto-scanner-results.csv', 'text/csv');
+        }
+
+        function exportWatchlistCSV() {
+            const wlCoins = allCoins.filter(c => isInWatchlist(c.id));
+            if (wlCoins.length === 0) {
+                alert('Watchlist kosong.');
+                return;
+            }
+            const headers = ['Name','Symbol','Market Cap (USD)','Volume 24h (USD)','Sector','Score'];
+            const rows = wlCoins.map(coin => {
+                const m = coin.market_data;
+                const mc = m.market_cap?.usd || 0;
+                const vol = m.total_volume?.usd || 0;
+                const sector = determineSector(coin);
+                const score = calculateScore(coin);
+                return [coin.name, coin.symbol?.toUpperCase(), mc, vol, sector, score];
+            });
+            let csv = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(val => `"${val}"`).join(',') + '\n';
+            });
+            downloadFile(csv, 'crypto-watchlist.csv', 'text/csv');
+        }
+
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // ============ CUSTOM WEIGHTS ============
+        function toggleWeightsPanel() {
+            document.getElementById('weightsPanel').classList.toggle('active');
+        }
+
+        function updateWeightLabel(input, labelId) {
+            document.getElementById(labelId).textContent = input.value;
+        }
+
+        function saveWeights() {
+            scoringWeights = {
+                liquidity: parseInt(document.getElementById('wLiquidity').value),
+                tokenomics: parseInt(document.getElementById('wTokenomics').value),
+                marketCap: parseInt(document.getElementById('wMarketCap').value),
+                momentum: parseInt(document.getElementById('wMomentum').value),
+                devActivity: parseInt(document.getElementById('wDevActivity').value)
+            };
+            localStorage.setItem('scoringWeights', JSON.stringify(scoringWeights));
+            if (allCoins.length > 0) {
+                applyFilters();
+            }
+            alert('Bobot scoring berhasil disimpan!');
+        }
+
+        function resetWeights() {
+            scoringWeights = { liquidity: 5, tokenomics: 5, marketCap: 5, momentum: 5, devActivity: 5 };
+            localStorage.setItem('scoringWeights', JSON.stringify(scoringWeights));
+            document.getElementById('wLiquidity').value = 5;
+            document.getElementById('wTokenomics').value = 5;
+            document.getElementById('wMarketCap').value = 5;
+            document.getElementById('wMomentum').value = 5;
+            document.getElementById('wDevActivity').value = 5;
+            ['wLiquidityVal','wTokenomicsVal','wMarketCapVal','wMomentumVal','wDevActivityVal'].forEach(id => {
+                document.getElementById(id).textContent = '5';
+            });
+            if (allCoins.length > 0) {
+                applyFilters();
+            }
+        }
+
+        function loadWeightsUI() {
+            document.getElementById('wLiquidity').value = scoringWeights.liquidity;
+            document.getElementById('wTokenomics').value = scoringWeights.tokenomics;
+            document.getElementById('wMarketCap').value = scoringWeights.marketCap;
+            document.getElementById('wMomentum').value = scoringWeights.momentum;
+            document.getElementById('wDevActivity').value = scoringWeights.devActivity;
+            document.getElementById('wLiquidityVal').textContent = scoringWeights.liquidity;
+            document.getElementById('wTokenomicsVal').textContent = scoringWeights.tokenomics;
+            document.getElementById('wMarketCapVal').textContent = scoringWeights.marketCap;
+            document.getElementById('wMomentumVal').textContent = scoringWeights.momentum;
+            document.getElementById('wDevActivityVal').textContent = scoringWeights.devActivity;
+        }
 
         // Utility Functions
         function formatNumber(num) {
@@ -698,59 +1287,73 @@
             const market = coinData.market_data;
             if (!market) return 0;
 
-            let score = 0;
-            const maxScore = 25;
+            const w = scoringWeights;
+            const totalWeight = w.liquidity + w.tokenomics + w.marketCap + w.momentum + w.devActivity;
+            if (totalWeight === 0) return 0;
 
             // Liquidity Score (0-5)
+            let liqScore = 0;
             const volume = market.total_volume?.usd || 0;
             const marketCap = market.market_cap?.usd || 1;
             const volumeRatio = volume / marketCap;
             
-            if (volumeRatio > 0.5) score += 5;
-            else if (volumeRatio > 0.2) score += 4;
-            else if (volumeRatio > 0.1) score += 3;
-            else if (volumeRatio > 0.05) score += 2;
-            else if (volumeRatio > 0.01) score += 1;
+            if (volumeRatio > 0.5) liqScore = 5;
+            else if (volumeRatio > 0.2) liqScore = 4;
+            else if (volumeRatio > 0.1) liqScore = 3;
+            else if (volumeRatio > 0.05) liqScore = 2;
+            else if (volumeRatio > 0.01) liqScore = 1;
 
             // Tokenomics Score (0-5)
+            let tokScore = 0;
             const fdv = market.fully_diluted_valuation?.usd || marketCap;
             const fdvRatio = fdv / marketCap;
             
-            if (fdvRatio < 1.2) score += 5;
-            else if (fdvRatio < 1.5) score += 4;
-            else if (fdvRatio < 2) score += 3;
-            else if (fdvRatio < 3) score += 2;
-            else if (fdvRatio < 5) score += 1;
+            if (fdvRatio < 1.2) tokScore = 5;
+            else if (fdvRatio < 1.5) tokScore = 4;
+            else if (fdvRatio < 2) tokScore = 3;
+            else if (fdvRatio < 3) tokScore = 2;
+            else if (fdvRatio < 5) tokScore = 1;
 
             // Market Cap Score (0-5) - Lower cap = higher potential
-            if (marketCap < 50e6) score += 5;
-            else if (marketCap < 100e6) score += 4;
-            else if (marketCap < 200e6) score += 3;
-            else if (marketCap < 500e6) score += 2;
-            else if (marketCap < 1e9) score += 1;
+            let mcScore = 0;
+            if (marketCap < 50e6) mcScore = 5;
+            else if (marketCap < 100e6) mcScore = 4;
+            else if (marketCap < 200e6) mcScore = 3;
+            else if (marketCap < 500e6) mcScore = 2;
+            else if (marketCap < 1e9) mcScore = 1;
 
             // Momentum Score (0-5)
+            let momScore = 0;
             const change7d = market.price_change_percentage_7d || 0;
             const change30d = market.price_change_percentage_30d_in_currency?.usd || 0;
             
-            if (change7d > 20 && change30d > 50) score += 5;
-            else if (change7d > 10 && change30d > 30) score += 4;
-            else if (change7d > 5 && change30d > 15) score += 3;
-            else if (change7d > 0) score += 2;
-            else if (change7d > -10) score += 1;
+            if (change7d > 20 && change30d > 50) momScore = 5;
+            else if (change7d > 10 && change30d > 30) momScore = 4;
+            else if (change7d > 5 && change30d > 15) momScore = 3;
+            else if (change7d > 0) momScore = 2;
+            else if (change7d > -10) momScore = 1;
 
             // Developer/Community Activity (0-5)
+            let devScore = 0;
             const commits = coinData.developer_data?.commit_count_4_weeks || 0;
             const forks = coinData.developer_data?.forks || 0;
             const stars = coinData.developer_data?.stars || 0;
             
-            if (commits > 100 || forks > 500 || stars > 2000) score += 5;
-            else if (commits > 50 || forks > 200 || stars > 1000) score += 4;
-            else if (commits > 20 || forks > 100 || stars > 500) score += 3;
-            else if (commits > 10 || forks > 50 || stars > 200) score += 2;
-            else if (commits > 0) score += 1;
+            if (commits > 100 || forks > 500 || stars > 2000) devScore = 5;
+            else if (commits > 50 || forks > 200 || stars > 1000) devScore = 4;
+            else if (commits > 20 || forks > 100 || stars > 500) devScore = 3;
+            else if (commits > 10 || forks > 50 || stars > 200) devScore = 2;
+            else if (commits > 0) devScore = 1;
 
-            return Math.min(score, maxScore);
+            const weightedScore = (
+                liqScore * w.liquidity +
+                tokScore * w.tokenomics +
+                mcScore * w.marketCap +
+                momScore * w.momentum +
+                devScore * w.devActivity
+            ) / totalWeight;
+
+            return Math.round(weightedScore * 5 * 100) / 100;
         }
 
         function determineSector(coinData) {
@@ -849,13 +1452,18 @@
             
             const binancePair = coin.binancePairs?.[0] || 'N/A';
 
+            const wlActive = isInWatchlist(coin.id) ? 'active' : '';
+            
             card.innerHTML = `
                 <div class="card-header">
                     <div>
                         <div class="coin-name">${coin.name}</div>
-                        <div style="color: #a0a0c0; font-size: 0.9em;">${coin.symbol?.toUpperCase()}</div>
+                        <div style="color: var(--text-secondary); font-size: 0.9em;">${coin.symbol?.toUpperCase()}</div>
                     </div>
-                    <div class="coin-ticker">${coin.id}</div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <button class="watchlist-btn ${wlActive}" onclick="event.stopPropagation();toggleWatchlist('${coin.id}','${coin.name}')" title="Add to watchlist">&#9733;</button>
+                        <div class="coin-ticker">${coin.id}</div>
+                    </div>
                 </div>
                 
                 <div class="metrics-grid">
@@ -911,7 +1519,7 @@
                 
                 <div class="overall-score">
                     <div class="score-label">Overall Score</div>
-                    <div class="score-value">${score}/25</div>
+                    <div class="score-value">${score.toFixed(1)}/25</div>
                 </div>
             `;
             
@@ -1251,6 +1859,8 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Crypto 10x Scanner ready!');
+            loadWeightsUI();
+            updateWatchlistUI();
         });
     </script>
 </body>

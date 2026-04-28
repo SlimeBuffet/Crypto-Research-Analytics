@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Research & Analytics Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: #1a2332;
+            --bg-hover: #243045;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-orange: #f59e0b;
+            --accent-cyan: #06b6d4;
+            --border-color: #2d3748;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .hero-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(139,92,246,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(16,185,129,0.06) 0%, transparent 50%);
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation */
+        nav {
+            padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .nav-logo {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .nav-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: var(--bg-card);
+        }
+
+        .nav-links a.active {
+            color: var(--accent-blue);
+            background: rgba(59,130,246,0.1);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 80px 0 60px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.2);
+            padding: 6px 16px;
+            border-radius: 24px;
+            font-size: 0.85rem;
+            color: var(--accent-blue);
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, #9ca3af 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 640px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+        }
+
+        /* Tool Cards */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .tool-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 36px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .tool-card.scanner::before {
+            background: linear-gradient(90deg, #10b981, #06b6d4);
+        }
+
+        .tool-card.analyzer::before {
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .tool-icon {
+            width: 56px; height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .scanner .tool-icon {
+            background: rgba(16,185,129,0.12);
+        }
+
+        .analyzer .tool-icon {
+            background: rgba(139,92,246,0.12);
+        }
+
+        .tool-card h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .tool-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex: 1;
+        }
+
+        .tool-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .tool-feature {
+            background: var(--bg-secondary);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .tool-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 12px 24px;
+            border-radius: 10px;
+            transition: all 0.2s;
+            text-decoration: none;
+            align-self: flex-start;
+        }
+
+        .scanner .tool-cta {
+            background: rgba(16,185,129,0.12);
+            color: var(--accent-green);
+        }
+
+        .scanner .tool-cta:hover {
+            background: rgba(16,185,129,0.2);
+        }
+
+        .analyzer .tool-cta {
+            background: rgba(139,92,246,0.12);
+            color: var(--accent-purple);
+        }
+
+        .analyzer .tool-cta:hover {
+            background: rgba(139,92,246,0.2);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 60px 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .features > p {
+            text-align: center;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto 40px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .feature-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 24px;
+            transition: border-color 0.2s;
+        }
+
+        .feature-item:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+
+        .feature-item h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .feature-item p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Sectors */
+        .sectors {
+            padding: 60px 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sectors h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 32px;
+        }
+
+        .sector-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .sector-pill {
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            transition: all 0.2s;
+        }
+
+        .sector-pill:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-blue);
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 24px;
+            margin: 40px 0;
+        }
+
+        .disclaimer h3 {
+            color: var(--accent-orange);
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .disclaimer p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 32px 0;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .tools-grid { grid-template-columns: 1fr; }
+            .features-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-bg"></div>
+
+    <div class="container">
+        <nav>
+            <a href="index.html" class="nav-brand">
+                <div class="nav-logo">CR</div>
+                <span class="nav-title">Crypto Research</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="active">Home</a>
+                <a href="crypto-scanner.html">Scanner</a>
+                <a href="crypto-analyzer.html">Analyzer</a>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <div class="hero-badge">Binance Listed Coins Only</div>
+            <h1>Crypto Research<br><span>& Analytics Hub</span></h1>
+            <p>Platform analisis cryptocurrency berbasis data untuk mengidentifikasi aset dengan potensi pertumbuhan tinggi. Scan otomatis, scoring transparan, dan analisis sektor mendalam.</p>
+        </section>
+
+        <section class="tools-grid">
+            <a href="crypto-scanner.html" class="tool-card scanner">
+                <div class="tool-icon">&#128269;</div>
+                <h3>Real-Time Scanner</h3>
+                <p>Scan otomatis semua coin Binance dengan USDT pair aktif. Mengambil data real-time dari CoinGecko API, menerapkan filter multi-kriteria, dan memberikan skor potensi 10x.</p>
+                <div class="tool-features">
+                    <span class="tool-feature">Live API Data</span>
+                    <span class="tool-feature">Auto Scoring 0-25</span>
+                    <span class="tool-feature">Multi-Filter</span>
+                    <span class="tool-feature">Export CSV</span>
+                    <span class="tool-feature">Watchlist</span>
+                </div>
+                <span class="tool-cta">Mulai Scanning &rarr;</span>
+            </a>
+
+            <a href="crypto-analyzer.html" class="tool-card analyzer">
+                <div class="tool-icon">&#128200;</div>
+                <h3>Deep Analyzer</h3>
+                <p>Analisis mendalam 10 coin pilihan dengan data kualitatif: alasan upside, risiko utama, tokenomics, dan sector fit. Cocok untuk riset sebelum entry posisi.</p>
+                <div class="tool-features">
+                    <span class="tool-feature">Curated Picks</span>
+                    <span class="tool-feature">Risk Analysis</span>
+                    <span class="tool-feature">Sector Mapping</span>
+                    <span class="tool-feature">Score 0-5</span>
+                    <span class="tool-feature">Export CSV</span>
+                </div>
+                <span class="tool-cta">Lihat Analisis &rarr;</span>
+            </a>
+        </section>
+
+        <section class="features">
+            <h2>Fitur Utama</h2>
+            <p>Semua tools yang Anda butuhkan untuk riset crypto dalam satu platform.</p>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">&#128269;</div>
+                    <h4>Auto Scanning</h4>
+                    <p>Scan 100-300+ coin Binance secara otomatis dengan satu klik.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">&#128202;</div>
+                    <h4>Scoring Transparan</h4>
+                    <p>Sistem scoring 0-25 berdasarkan likuiditas, tokenomics, fundamental, dan momentum.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">&#128196;</div>
+                    <h4>Export CSV</h4>
+                    <p>Ekspor hasil analisis ke file CSV untuk analisis lebih lanjut di spreadsheet.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">&#127775;</div>
+                    <h4>Watchlist</h4>
+                    <p>Simpan coin favorit ke watchlist dan pantau kapan saja.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">&#9878;</div>
+                    <h4>Custom Weights</h4>
+                    <p>Sesuaikan bobot scoring sesuai strategi investasi Anda.</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">&#127761;</div>
+                    <h4>Dark Mode</h4>
+                    <p>Tema gelap yang nyaman untuk mata saat riset di malam hari.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="sectors">
+            <h2>Sektor yang Dianalisis</h2>
+            <div class="sector-tags">
+                <span class="sector-pill">&#129302; AI & Machine Learning</span>
+                <span class="sector-pill">&#128176; DeFi & LST/LRT</span>
+                <span class="sector-pill">&#128279; Modular & Layer 2</span>
+                <span class="sector-pill">&#127760; DePIN Infrastructure</span>
+                <span class="sector-pill">&#128196; Real World Assets</span>
+                <span class="sector-pill">&#127918; Gaming & Metaverse</span>
+                <span class="sector-pill">&#128054; Meme & Community</span>
+                <span class="sector-pill">&#128256; Interoperability</span>
+            </div>
+        </section>
+
+        <div class="disclaimer">
+            <h3>Penafian Penting</h3>
+            <p>Ini BUKAN nasihat keuangan. Cryptocurrency adalah aset berisiko sangat tinggi. Tools ini hanya untuk tujuan edukasi dan riset. Selalu lakukan riset mandiri (DYOR) dan jangan investasikan lebih dari yang Anda mampu kehilangan.</p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>Data sourced from CoinGecko API &bull; Binance Listed Coins Only</p>
+            <p style="margin-top: 6px;">&copy; 2024 Crypto Research & Analytics Hub</p>
+        </div>
+    </footer>
+</body>
+</html>

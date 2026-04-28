@@ -1,6 +1,6 @@
-# Crypto 10x Potential Scanner
+# Crypto Research & Analytics Hub
 
-A powerful web-based tool that automatically scans Binance-listed cryptocurrencies to identify high-potential assets with ~10x upside potential in the next market cycle.
+A powerful web-based platform for cryptocurrency research and analysis, featuring automated scanning and deep analysis tools for Binance-listed cryptocurrencies with ~10x upside potential.
 
 ## ⚠️ Disclaimer
 
@@ -43,6 +43,29 @@ Transparent 0-25 scoring based on:
 - Search functionality
 - Responsive design for mobile and desktop
 - Beautiful gradient cards with detailed metrics
+
+### 🌙 Dark/Light Mode
+- Toggle between dark and light themes across all pages
+- Theme preference saved in localStorage
+- Seamless transition with CSS variables
+
+### 📥 Export to CSV
+- Export scanner results to CSV file
+- Export analyzer results to CSV file
+- Export watchlist to CSV file
+- All data formatted for easy import into spreadsheets
+
+### ⭐ Watchlist
+- Save favorite coins to a personal watchlist
+- Watchlist persisted in localStorage across sessions
+- Quick add/remove with star button on each card
+- Export watchlist separately to CSV
+
+### ⚖️ Custom Scoring Weights
+- Adjust scoring weights for each category (Liquidity, Tokenomics, Market Cap, Momentum, Dev Activity)
+- Weights saved in localStorage
+- Real-time recalculation when weights change
+- Reset to default option
 
 ## Installation
 
@@ -224,7 +247,9 @@ GET /search/trending
 
 ```
 /workspace/
-├── crypto-scanner.html    # Main application (single-file HTML/CSS/JS)
+├── index.html             # Landing page / Hub
+├── crypto-scanner.html    # Real-time scanner (CoinGecko API)
+├── crypto-analyzer.html   # Deep analyzer (curated picks)
 └── README.md             # This documentation file
 ```
 
@@ -266,14 +291,15 @@ GET /search/trending
 
 ## Future Enhancements (Potential)
 
-- [ ] Export results to CSV/Excel
+- [x] Export results to CSV/Excel
+- [x] Custom scoring weights
+- [x] Dark mode toggle
+- [x] Saved watchlists
+- [x] Landing page with navigation hub
 - [ ] Portfolio tracking integration
 - [ ] Price alerts and notifications
 - [ ] Historical performance backtesting
-- [ ] Custom scoring weights
 - [ ] Multi-exchange support (Coinbase, Kraken, etc.)
-- [ ] Dark mode toggle
-- [ ] Saved watchlists
 
 ## Resources
 
