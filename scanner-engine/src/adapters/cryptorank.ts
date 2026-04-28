@@ -42,9 +42,8 @@ export class CryptoRankAdapter {
     try {
       const symbolParam = uncached.join(',');
       const data = await fetchWithBackoff<CryptoRankResponse>(
-        `${BASE_URL}/currencies?symbols=${symbolParam}&limit=${uncached.length}`,
+        `${BASE_URL}/currencies?symbols=${symbolParam}&limit=${uncached.length}&api_key=${apiKey}`,
         {
-          headers: { 'X-API-KEY': apiKey },
           label: `cryptorank/currencies (${uncached.length} symbols)`,
         },
       );
