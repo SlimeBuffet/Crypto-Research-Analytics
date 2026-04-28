@@ -1,6 +1,7 @@
 import WebSocket from 'ws';
 import Piscina from 'piscina';
 import path from 'path';
+import fs from 'fs';
 import { logger } from '../../utils/logger';
 import { CircuitBreaker } from '../utils/circuit-breaker';
 import {
@@ -63,8 +64,18 @@ export class StreamIngestor {
    */
   private initWorkerPool(): void {
     try {
+      // Piscina worker threads require compiled .js files — they cannot load .ts
+      // directly. When running under ts-node (dev), skip worker pool initialization
+      // and fall back to main-thread processing.
+      const workerPath = path.resolve(__dirname, 'worker.js');
+      if (!fs.existsSync(workerPath)) {
+        logger.info('Worker pool skipped (dev mode — run npm run build for worker threads)');
+        this.workerPool = null;
+        return;
+      }
+
       this.workerPool = new Piscina({
-        filename: path.resolve(__dirname, 'worker.js'),
+        filename: workerPath,
         maxThreads: Math.max(2, Math.min(4, 3)),
         minThreads: 1,
         idleTimeout: 60_000,
@@ -259,14 +270,14 @@ export class StreamIngestor {
     }
 
     let buyVolume = 0, sellVolume = 0, totalVolume = 0, weightedPrice = 0, largeTradeCount = 0;
-    const avgSize = trades.reduce((s, t) => s + t.quantity, 0) / trades.length;
+    const avgUsdSize = trades.reduce((s, t) => s + t.quantity * t.price, 0) / trades.length;
 
     for (const trade of trades) {
       const usdValue = trade.price * trade.quantity;
       if (trade.isBuyerMaker) { sellVolume += usdValue; } else { buyVolume += usdValue; }
       totalVolume += trade.quantity;
       weightedPrice += trade.price * trade.quantity;
-      if (trade.quantity > avgSize * 5) largeTradeCount++;
+      if (usdValue > avgUsdSize * 5) largeTradeCount++;
     }
 
     return {
@@ -274,7 +285,7 @@ export class StreamIngestor {
       sellVolume: Math.round(sellVolume * 100) / 100,
       netDelta: Math.round((buyVolume - sellVolume) * 100) / 100,
       tradeCount: trades.length,
-      avgTradeSize: Math.round((totalVolume / trades.length) * 100000) / 100000,
+      avgTradeSize: Math.round(avgUsdSize * 100) / 100,
       largeTradeCount,
       vwap: totalVolume > 0 ? Math.round((weightedPrice / totalVolume) * 100) / 100 : 0,
     };
@@ -353,13 +364,16 @@ export class StreamIngestor {
     const askDepth = asks.reduce((s, a) => s + a.totalUsd, 0);
     const total = bidDepth + askDepth;
 
-    return {
+    const snapshot: OrderBookSnapshot = {
       symbol,
       bids,
       asks,
       timestamp: Date.now(),
       imbalanceRatio: total > 0 ? (bidDepth - askDepth) / total : 0,
     };
+
+    this.orderBooks.set(symbol, snapshot);
+    return snapshot;
   }
 
   async detectGraduatedTokens(): Promise<GraduatedToken[]> {

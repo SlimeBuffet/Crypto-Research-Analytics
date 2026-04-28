@@ -326,9 +326,9 @@ export class MasterScannerEngine {
           const masterScore = masterScores.get(coin.symbol) || null;
           const dynScore = dynamicScores.get(coin.symbol);
 
-          // Run ElizaOS ReAct loop
+          // Run ElizaOS ReAct loop (pass pre-computed btcGate to avoid redundant API calls)
           const trace = await this.elizaOrchestrator.evaluate(
-            coin, smc, forensic, narrative, manipulation, convergence, masterScore,
+            coin, smc, forensic, narrative, manipulation, convergence, masterScore, btcGate,
           );
 
           // Generate alpha report from trace
@@ -425,7 +425,7 @@ export class MasterScannerEngine {
     const summary: MasterScanSummary = {
       totalScanned: allCoins.length,
       passedSmc: results.filter((r) => r.smcAnalysis && r.smcAnalysis.smcScore >= 4).length,
-      passedForensic: results.filter((r) => r.forensicAudit?.isApproved).length,
+      passedForensic: results.filter((r) => !r.forensicAudit || r.forensicAudit.isApproved).length,
       passedManipulation: results.filter((r) => !r.manipulationGuard?.isManipulated).length,
       ultraGems: results.filter((r) => r.finalVerdict === 'ULTRA_GEM').length,
       strongBuys: results.filter((r) => r.finalVerdict === 'STRONG_BUY').length,

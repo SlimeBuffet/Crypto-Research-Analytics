@@ -127,6 +127,7 @@ export class DynamicScorer {
   }
 
   async calculateCorrelationPenalty(symbol: string): Promise<number> {
+    if (symbol === 'BTC') return 1.0;
     try {
       if (!this.btcReturns) {
         await this.circuitBreaker.execute(async () => {

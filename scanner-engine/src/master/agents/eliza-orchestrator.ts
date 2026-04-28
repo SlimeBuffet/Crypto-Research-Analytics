@@ -71,6 +71,7 @@ export class ElizaOrchestrator {
     manipulationGuard: ManipulationGuardResult | null,
     smcConvergence: SmcConvergenceResult | null,
     masterScore: MasterScoreResult | null,
+    precomputedBtcGate?: BtcGateResult,
   ): Promise<ReActTrace> {
     const steps: ReActStep[] = [];
     const startTime = Date.now();
@@ -90,8 +91,8 @@ export class ElizaOrchestrator {
       timestamp: Date.now(),
     });
 
-    // Step 2: Check BTC Gate
-    const btcGate = await this.checkBtcGate();
+    // Step 2: Check BTC Gate (use pre-computed value if available to avoid redundant API calls)
+    const btcGate = precomputedBtcGate ?? await this.checkBtcGate();
 
     steps.push({
       thought: btcGate.isGateOpen
