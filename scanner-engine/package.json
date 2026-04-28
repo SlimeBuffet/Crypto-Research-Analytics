@@ -9,6 +9,8 @@
     "dev": "ts-node src/index.ts",
     "hedge-fund": "node dist/hedge-fund-runner.js",
     "hedge-fund:dev": "ts-node src/hedge-fund-runner.ts",
+    "master": "node dist/master-runner.js",
+    "master:dev": "ts-node src/master-runner.ts",
     "lint": "eslint src/ --ext .ts",
     "typecheck": "tsc --noEmit"
   },
