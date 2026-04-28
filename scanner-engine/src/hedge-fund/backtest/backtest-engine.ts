@@ -195,8 +195,15 @@ export class BacktestEngine {
   }
 
   /**
-   * Monte Carlo Simulation — runs N randomized permutations of
-   * trade outcomes to estimate return distribution.
+   * Monte Carlo Simulation — uses Bootstrapping (resampling with
+   * replacement) to estimate return distribution from historical trades.
+   *
+   * Unlike simple permutation (which produces identical final returns
+   * due to multiplication commutativity), bootstrapping samples N trades
+   * from the observed distribution, creating genuine variance in both
+   * return and drawdown paths.
+   *
+   * Model: S_t = S_0 * exp(sum(r_i)) where r_i ~ sampled from trade returns
    */
   runMonteCarlo(
     backtestResult: BacktestResult,
@@ -215,6 +222,7 @@ export class BacktestEngine {
     }
 
     const tradeReturns = backtestResult.trades.map((t) => t.returnPct / 100);
+    const n = tradeReturns.length;
     const simReturns: number[] = [];
     const simDrawdowns: number[] = [];
 
@@ -223,10 +231,9 @@ export class BacktestEngine {
       let peak = 1.0;
       let maxDD = 0;
 
-      const shuffled = [...tradeReturns].sort(() => Math.random() - 0.5);
-
-      for (const ret of shuffled) {
-        equity *= 1 + ret;
+      for (let i = 0; i < n; i++) {
+        const idx = Math.floor(Math.random() * n);
+        equity *= 1 + tradeReturns[idx];
         if (equity > peak) peak = equity;
         const dd = (peak - equity) / peak;
         if (dd > maxDD) maxDD = dd;

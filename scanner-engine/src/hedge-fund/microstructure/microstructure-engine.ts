@@ -170,7 +170,12 @@ export class MicrostructureEngine {
 
   /**
    * Cumulative Volume Delta — estimates net buying vs selling pressure
-   * using DEX transaction data and price movement correlation.
+   * using Linear Scaling of priceChange against volume.
+   *
+   * Instead of a binary weight, the buy/sell split scales continuously
+   * with price change magnitude via a sigmoid-like clamping function.
+   * This yields a value between 0.35 and 0.65 for the buy weight,
+   * providing sensitivity proportional to absorption pressure.
    */
   private async calculateCVD(
     coin: CoinData,
@@ -178,17 +183,20 @@ export class MicrostructureEngine {
     const totalVol = coin.volume24h || 1;
     const priceChange = coin.priceChange24h;
 
-    const priceWeight = priceChange > 0 ? 0.55 : 0.45;
-    const buyVolume = totalVol * priceWeight;
-    const sellVolume = totalVol * (1 - priceWeight);
+    const scaledDelta = priceChange / (Math.abs(priceChange) + 10);
+    const buyWeight = 0.5 + scaledDelta * 0.15;
+    const clampedBuyWeight = Math.max(0.35, Math.min(0.65, buyWeight));
+
+    const buyVolume = totalVol * clampedBuyWeight;
+    const sellVolume = totalVol * (1 - clampedBuyWeight);
 
     const delta24h = buyVolume - sellVolume;
     const buyVolumePct = (buyVolume / totalVol) * 100;
     const sellVolumePct = 100 - buyVolumePct;
 
     let deltaTrend: 'BULLISH' | 'BEARISH' | 'NEUTRAL';
-    if (buyVolumePct > 55) deltaTrend = 'BULLISH';
-    else if (sellVolumePct > 55) deltaTrend = 'BEARISH';
+    if (buyVolumePct >= 55) deltaTrend = 'BULLISH';
+    else if (sellVolumePct >= 55) deltaTrend = 'BEARISH';
     else deltaTrend = 'NEUTRAL';
 
     return {
