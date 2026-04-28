@@ -222,6 +222,105 @@ scanner-engine/src/hedge-fund/
     └── index.ts
 ```
 
+## Master Level Architecture — Autonomous Alpha Engine
+
+The Master Level transforms the scanner from a "Data Fetcher" into an **Autonomous Alpha Engine** using an Event-Driven Micro-Kernel architecture with 4 analytical layers and 4 premium modules.
+
+### Architecture: The "Sentient" Pipeline
+
+```
+╔══════════════════════════════════════════════════════════════════════════╗
+║                    MASTER SCANNER ENGINE v1.0.0                         ║
+║               "From Data Fetcher to Autonomous Alpha Engine"            ║
+╠═════════════════════════════════════════════════════════════════════════╣
+║                                                                         ║
+║  Layer 1: INGESTOR (Stream-First)                                       ║
+║  ├── WebSocket Streams (Binance Order Book + Aggregated Trades)         ║
+║  ├── Volume Profile Builder (POC, Value Area)                           ║
+║  └── Helius RPC (Solana Graduated Token Detection)                      ║
+║                          ↓                                              ║
+║  Layer 2: PATTERN BRAIN (SMC & Liquidity)                               ║
+║  ├── Market Structure Shift (MSS) Detection                             ║
+║  ├── Order Block (OB) Identification                                    ║
+║  ├── Fair Value Gap (FVG) Detection                                     ║
+║  └── Dynamic Scoring: (Σw_i·S_i / V_volatility) × C_correlation        ║
+║                          ↓                                              ║
+║  Layer 3: FORENSIC SHIELD (Security Engine)                             ║
+║  ├── Contract Analysis (mint, proxy, honeypot via GoPlus)               ║
+║  ├── Liquidity Lock Verification                                        ║
+║  └── Whale Tracking (Top 10 wallet concentration)                       ║
+║                          ↓                                              ║
+║  Layer 4: AGENTIC ORCHESTRATOR (Alpha Narrator)                         ║
+║  ├── Chain-of-Thought Reasoning Engine                                  ║
+║  ├── Verdict: ULTRA_GEM | STRONG_BUY | BUY | NEUTRAL | AVOID           ║
+║  └── Narrative: "Why this coin is valid" with catalysts & risks         ║
+║                                                                         ║
+║  Premium Modules:                                                       ║
+║  ├── Smart Money Convergence (Liquidity Grab + Rejection Detection)     ║
+║  ├── Anti-Manipulation Guard (Wash Trading, Pump & Dump Detection)      ║
+║  ├── Automated Narrative Mapper (Trending narrative boost)              ║
+║  └── Auto-Optimizer (Historical weight tuning for better predictions)   ║
+╚══════════════════════════════════════════════════════════════════════════╝
+```
+
+### Dynamic Scoring Formula
+
+```
+FinalScore = ( Σ(w_i × S_i) / V_volatility ) × C_correlation
+```
+
+- **w_i**: Weight for each scoring dimension (liquidity, tokenomics, SMC, forensic, etc.)
+- **S_i**: Individual dimension score
+- **V_volatility**: Volatility divisor (higher volatility = lower score)
+- **C_correlation**: BTC correlation penalty (high correlation = 30% penalty)
+
+### Quick Start (Master Engine)
+
+```bash
+cd scanner-engine
+
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.example .env
+
+# Run the master pipeline
+npm run master:dev
+```
+
+### Directory Structure (Master Level)
+
+```
+scanner-engine/src/master/
+├── types.ts                           # All domain types for 4 layers + modules
+├── index.ts                           # Barrel export
+├── ingestor/
+│   ├── stream-ingestor.ts             # Layer 1: WebSocket stream-first ingestor
+│   └── index.ts
+├── pattern-brain/
+│   ├── smc-processor.ts               # Layer 2: SMC analysis (OB, FVG, MSS)
+│   ├── dynamic-scorer.ts              # Layer 2b: Master scoring formula
+│   └── index.ts
+├── forensic-shield/
+│   ├── forensic-audit.ts              # Layer 3: Contract security + whale tracking
+│   └── index.ts
+├── agentic-orchestrator/
+│   ├── alpha-narrator.ts              # Layer 4: Reasoning engine + narrative
+│   └── index.ts
+├── modules/
+│   ├── smc-convergence.ts             # Smart Money Convergence (Ultra Gem detection)
+│   ├── anti-manipulation.ts           # Anti-Manipulation Guard (wash trading)
+│   ├── narrative-mapper.ts            # Automated Narrative Mapper
+│   └── index.ts
+├── optimizer/
+│   ├── auto-optimizer.ts              # Auto-Optimization (weight tuning)
+│   └── index.ts
+└── engine/
+    ├── master-scanner-engine.ts       # Pipeline orchestrator
+    └── index.ts
+```
+
 ## Security
 
 - All API keys loaded exclusively from `.env` (never hardcoded)
