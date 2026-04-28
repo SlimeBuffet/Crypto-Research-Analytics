@@ -47,7 +47,7 @@ export class BinanceAdapter {
     const tickerMap = new Map<string, BinanceTicker24h>();
     for (const ticker of data) {
       if (ticker.symbol.endsWith('USDT')) {
-        tickerMap.set(ticker.symbol.replace('USDT', ''), ticker);
+        tickerMap.set(ticker.symbol.slice(0, -4), ticker);
       }
     }
 
