@@ -413,6 +413,233 @@ export interface MasterScanSummary {
   timestamp: number;
 }
 
+// ---------------------------------------------------------------------------
+// Enhanced: Benford's Law Analysis (Anti-Manipulation)
+// ---------------------------------------------------------------------------
+
+export interface BenfordsLawResult {
+  chiSquared: number;
+  pValue: number;
+  isSuspicious: boolean;
+  observedDistribution: number[];
+  expectedDistribution: number[];
+}
+
+export interface SpreadVarianceResult {
+  meanSpread: number;
+  spreadVariance: number;
+  spreadAnomalyScore: number;
+  isAnomalous: boolean;
+}
+
+export interface HighFreqVolumeSpike {
+  timestamp: number;
+  volumeChange: number;
+  priceChange: number;
+  isSuspected: boolean;
+  timeframeMinutes: number;
+}
+
+// ---------------------------------------------------------------------------
+// Enhanced: GoPlus SDK + DeBank (Forensic Shield)
+// ---------------------------------------------------------------------------
+
+export interface GoPlusTokenSecurity {
+  isOpenSource: boolean;
+  isProxy: boolean;
+  isMintable: boolean;
+  canTakeBackOwnership: boolean;
+  ownerChangeBalance: boolean;
+  hiddenOwner: boolean;
+  selfDestruct: boolean;
+  externalCall: boolean;
+  isAntiWhale: boolean;
+  tradingCooldown: boolean;
+  isBlacklisted: boolean;
+  isWhitelisted: boolean;
+  personalSlippageModifiable: boolean;
+  cannotBuy: boolean;
+  cannotSellAll: boolean;
+  buyTax: number;
+  sellTax: number;
+  holderCount: number;
+  totalSupply: string;
+  creatorAddress: string;
+  creatorPercent: number;
+  ownerAddress: string;
+  ownerPercent: number;
+  lpHolders: GoPlusLpHolder[];
+  dexInfo: GoPlusDexInfo[];
+}
+
+export interface GoPlusLpHolder {
+  address: string;
+  tag: string | null;
+  isContract: boolean;
+  balance: number;
+  percent: number;
+  isLocked: boolean;
+  lockedDetail: Array<{ amount: string; endTime: string; optTime: string }>;
+}
+
+export interface GoPlusDexInfo {
+  name: string;
+  liquidity: string;
+  pair: string;
+}
+
+export interface DeBankWhaleProfile {
+  address: string;
+  totalUsdValue: number;
+  tokenHoldings: DeBankTokenHolding[];
+  chainDistribution: Record<string, number>;
+  lastActiveAt: number;
+}
+
+export interface DeBankTokenHolding {
+  symbol: string;
+  amount: number;
+  usdValue: number;
+  percentage: number;
+}
+
+export interface CrossValidationResult {
+  dexScreenerData: { liquidity: number; volume24h: number; pairAddress: string } | null;
+  mobulaData: { liquidity: number; volume24h: number; marketCap: number } | null;
+  isConsistent: boolean;
+  discrepancyPct: number;
+  validatedSource: 'dexscreener' | 'mobula' | 'both' | 'neither';
+}
+
+// ---------------------------------------------------------------------------
+// Enhanced: Vectorized SMC Computation
+// ---------------------------------------------------------------------------
+
+export interface VectorizedOHLC {
+  opens: Float64Array;
+  highs: Float64Array;
+  lows: Float64Array;
+  closes: Float64Array;
+  volumes: Float64Array;
+  timestamps: Float64Array;
+  length: number;
+}
+
+// ---------------------------------------------------------------------------
+// Enhanced: Piscina Worker Thread Pool
+// ---------------------------------------------------------------------------
+
+export interface WorkerTaskPayload {
+  type: 'smc_analysis' | 'forensic_audit' | 'manipulation_check' | 'narrative_map';
+  symbol: string;
+  data: unknown;
+}
+
+export interface WorkerTaskResult {
+  type: string;
+  symbol: string;
+  result: unknown;
+  durationMs: number;
+  error: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// Enhanced: Real-time News Pipeline (Narrative Mapper)
+// ---------------------------------------------------------------------------
+
+export interface NewsArticle {
+  title: string;
+  url: string;
+  source: string;
+  publishedAt: number;
+  content: string;
+  relevanceScore: number;
+}
+
+export interface VectorEmbedding {
+  vector: number[];
+  magnitude: number;
+}
+
+export interface SemanticMatch {
+  narrative: string;
+  cosineSimilarity: number;
+  matchedArticles: string[];
+  confidence: number;
+}
+
+// ---------------------------------------------------------------------------
+// Enhanced: ElizaOS Agentic Orchestrator
+// ---------------------------------------------------------------------------
+
+export interface ElizaCharacter {
+  name: string;
+  role: string;
+  personality: string[];
+  instructions: string[];
+  riskTolerance: 'LOW' | 'MEDIUM' | 'HIGH';
+  minRiskRewardRatio: number;
+}
+
+export interface ElizaDecision {
+  decision: 'BUY' | 'SELL' | 'HOLD' | 'AVOID';
+  reasoning: string;
+  risk_level: 'Low' | 'Medium' | 'High' | 'Critical';
+  confidence: number;
+  investment_thesis: string;
+  catalysts: string[];
+  risks: string[];
+  position_sizing: number;
+  timestamp: number;
+}
+
+export interface ElizaPluginReport {
+  pluginName: string;
+  symbol: string;
+  findings: string[];
+  score: number;
+  recommendation: 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE';
+  rawData: unknown;
+}
+
+export interface ReActStep {
+  thought: string;
+  action: string;
+  observation: string;
+  timestamp: number;
+}
+
+export interface ReActTrace {
+  steps: ReActStep[];
+  finalDecision: ElizaDecision;
+  totalDurationMs: number;
+}
+
+// ---------------------------------------------------------------------------
+// Enhanced: BTC Gate for Master Scoring
+// ---------------------------------------------------------------------------
+
+export interface BtcGateResult {
+  btcPrice: number;
+  btcChange24h: number;
+  btcChange7d: number;
+  btcTrend: 'BULLISH' | 'BEARISH' | 'NEUTRAL';
+  gateValue: number;
+  isGateOpen: boolean;
+}
+
+export interface MasterScoreResult {
+  smcScore: number;
+  narrativeScore: number;
+  securityScore: number;
+  riskVolatility: number;
+  btcGate: number;
+  rawScore: number;
+  finalScore: number;
+  formula: string;
+  weights: { w1: number; w2: number; w3: number };
+}
+
 /** IAlphaHunter interface for extensibility */
 export interface IAlphaHunter {
   readonly id: string;

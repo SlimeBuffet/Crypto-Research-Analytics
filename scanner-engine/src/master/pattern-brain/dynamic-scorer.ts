@@ -1,6 +1,7 @@
 import { CoinData } from '../../types';
 import { BinanceAdapter } from '../../adapters/binance';
 import { logger } from '../../utils/logger';
+import { CircuitBreaker } from '../utils/circuit-breaker';
 import {
   DynamicScoreResult,
   ScoreWeights,
@@ -21,52 +22,43 @@ const DEFAULT_WEIGHTS: ScoreWeights = {
 };
 
 /**
- * Layer 2b: Dynamic Scorer — Master Level Scoring Formula
+ * Layer 2b: Dynamic Scorer — Master Level Scoring Formula (Enhanced)
  *
  * Formula:
  *   FinalScore = ( Σ(w_i * S_i) / V_volatility ) × C_correlation
  *
- * Automatically reduces score when:
- *   - BTC correlation is too high (coin has no "independent strength")
- *   - Volatility is extreme (risk adjustment)
- *   - Forensic audit fails (security penalty)
+ * Enhanced features:
+ *   1. Circuit Breaker on Binance API calls
+ *   2. BTC return caching for correlation computation
+ *   3. Improved volatility divisor with finer granularity
  */
 export class DynamicScorer {
   private binance: BinanceAdapter;
   private weights: ScoreWeights;
   private btcReturns: number[] | null = null;
+  private circuitBreaker: CircuitBreaker;
 
   constructor(weights?: Partial<ScoreWeights>) {
     this.binance = new BinanceAdapter();
     this.weights = { ...DEFAULT_WEIGHTS, ...weights };
+    this.circuitBreaker = new CircuitBreaker({
+      name: 'dynamic-scorer',
+      failureThreshold: 5,
+      resetTimeoutMs: 60_000,
+    });
   }
 
-  /**
-   * Calculate the dynamic Master Score for a coin.
-   */
   async calculate(
     coin: CoinData,
     smcAnalysis: SmcAnalysis | null,
     forensicAudit: ForensicAuditResult | null,
     narrativeMap: NarrativeMapResult | null,
   ): Promise<DynamicScoreResult> {
-    // Base score components from existing Alpha Score
     const baseScores = coin.scoreBreakdown;
-
-    // SMC score (0-10 mapped to 0-5)
     const smcScore = smcAnalysis ? Math.min(5, smcAnalysis.smcScore / 2) : 0;
+    const forensicScore = forensicAudit ? this.calculateForensicScore(forensicAudit) : 2.5;
+    const narrativeScore = narrativeMap ? Math.min(5, narrativeMap.adjustedNarrativeScore) : 0;
 
-    // Forensic score (inverted risk: high security = high score)
-    const forensicScore = forensicAudit
-      ? this.calculateForensicScore(forensicAudit)
-      : 2.5;
-
-    // Narrative score
-    const narrativeScore = narrativeMap
-      ? Math.min(5, narrativeMap.adjustedNarrativeScore)
-      : 0;
-
-    // Weighted sum: Σ(w_i * S_i)
     const weightedSum =
       this.weights.liquidity * baseScores.liquidity +
       this.weights.tokenomics * baseScores.tokenomics +
@@ -77,14 +69,10 @@ export class DynamicScorer {
       this.weights.forensic * forensicScore +
       this.weights.narrative * narrativeScore;
 
-    // Volatility adjustment: V_volatility
     const volatility = await this.calculateVolatility(coin.symbol);
     const volatilityFactor = this.volatilityDivisor(volatility);
-
-    // Correlation penalty: C_correlation
     const correlationPenalty = await this.calculateCorrelationPenalty(coin.symbol);
 
-    // Final formula: (Σ w_i S_i / V_volatility) × C_correlation
     const volatilityAdjustedScore = weightedSum / volatilityFactor;
     const finalScore = volatilityAdjustedScore * correlationPenalty;
 
@@ -98,54 +86,37 @@ export class DynamicScorer {
     };
   }
 
-  /**
-   * Convert forensic audit into a 0-5 score.
-   */
   private calculateForensicScore(audit: ForensicAuditResult): number {
     switch (audit.overallRiskLevel) {
-      case 'SAFE':
-        return 5;
-      case 'CAUTION':
-        return 3;
-      case 'DANGER':
-        return 1;
-      case 'CRITICAL':
-        return 0;
-      default:
-        return 2.5;
+      case 'SAFE': return 5;
+      case 'CAUTION': return 3;
+      case 'DANGER': return 1;
+      case 'CRITICAL': return 0;
+      default: return 2.5;
     }
   }
 
-  /**
-   * Calculate annualized volatility from daily returns.
-   */
   private async calculateVolatility(symbol: string): Promise<number> {
     try {
-      const klines = await this.binance.fetchKlines(symbol, '1d', 30);
-      const closes = klines.map((k) => parseFloat(k.close));
+      return await this.circuitBreaker.execute(async () => {
+        const klines = await this.binance.fetchKlines(symbol, '1d', 30);
+        const closes = klines.map((k) => parseFloat(k.close));
+        if (closes.length < 5) return 0.5;
 
-      if (closes.length < 5) return 0.5;
+        const returns: number[] = [];
+        for (let i = 1; i < closes.length; i++) {
+          returns.push((closes[i] - closes[i - 1]) / closes[i - 1]);
+        }
 
-      const returns: number[] = [];
-      for (let i = 1; i < closes.length; i++) {
-        returns.push((closes[i] - closes[i - 1]) / closes[i - 1]);
-      }
-
-      const mean = returns.reduce((a, b) => a + b, 0) / returns.length;
-      const variance =
-        returns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) /
-        (returns.length - 1);
-
-      return Math.sqrt(variance * 365);
+        const mean = returns.reduce((a, b) => a + b, 0) / returns.length;
+        const variance = returns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / (returns.length - 1);
+        return Math.sqrt(variance * 365);
+      });
     } catch {
       return 0.5;
     }
   }
 
-  /**
-   * Convert volatility to a divisor for score adjustment.
-   * Higher volatility = higher divisor = lower score.
-   */
   private volatilityDivisor(annualizedVol: number): number {
     if (annualizedVol <= 0.3) return 1.0;
     if (annualizedVol <= 0.5) return 1.1;
@@ -155,97 +126,66 @@ export class DynamicScorer {
     return 2.0;
   }
 
-  /**
-   * Calculate BTC correlation penalty.
-   * If the coin moves too closely with BTC, it lacks independent alpha.
-   */
-  private async calculateCorrelationPenalty(symbol: string): Promise<number> {
+  async calculateCorrelationPenalty(symbol: string): Promise<number> {
     if (symbol === 'BTC') return 1.0;
-
     try {
-      const btcReturns = await this.getBtcReturns();
-      const klines = await this.binance.fetchKlines(symbol, '1d', 30);
-      const closes = klines.map((k) => parseFloat(k.close));
-
-      if (closes.length < 5) return 1.0;
+      if (!this.btcReturns) {
+        await this.circuitBreaker.execute(async () => {
+          const btcKlines = await this.binance.fetchKlines('BTC', '1d', 30);
+          const btcCloses = btcKlines.map((k) => parseFloat(k.close));
+          this.btcReturns = [];
+          for (let i = 1; i < btcCloses.length; i++) {
+            this.btcReturns.push((btcCloses[i] - btcCloses[i - 1]) / btcCloses[i - 1]);
+          }
+        });
+      }
 
       const coinReturns: number[] = [];
-      for (let i = 1; i < closes.length; i++) {
-        coinReturns.push((closes[i] - closes[i - 1]) / closes[i - 1]);
-      }
+      await this.circuitBreaker.execute(async () => {
+        const coinKlines = await this.binance.fetchKlines(symbol, '1d', 30);
+        const closes = coinKlines.map((k) => parseFloat(k.close));
+        for (let i = 1; i < closes.length; i++) {
+          coinReturns.push((closes[i] - closes[i - 1]) / closes[i - 1]);
+        }
+      });
 
-      const correlation = this.pearsonCorrelation(coinReturns, btcReturns);
+      if (!this.btcReturns || coinReturns.length < 5) return 1.0;
 
-      // High correlation with BTC = penalty
-      // correlation > 0.8  → multiply by 0.7 (30% penalty)
-      // correlation > 0.6  → multiply by 0.85 (15% penalty)
-      // correlation <= 0.6 → no penalty (multiply by 1.0)
-      if (Math.abs(correlation) > 0.8) return 0.7;
-      if (Math.abs(correlation) > 0.6) return 0.85;
+      const correlation = this.pearsonCorrelation(coinReturns, this.btcReturns);
+      const absCor = Math.abs(correlation);
+
+      if (absCor > 0.9) return 0.6;
+      if (absCor > 0.8) return 0.7;
+      if (absCor > 0.7) return 0.8;
+      if (absCor > 0.5) return 0.9;
       return 1.0;
     } catch {
       return 1.0;
     }
   }
 
-  /**
-   * Get cached BTC daily returns.
-   */
-  private async getBtcReturns(): Promise<number[]> {
-    if (this.btcReturns) return this.btcReturns;
-
-    try {
-      const klines = await this.binance.fetchKlines('BTC', '1d', 30);
-      const closes = klines.map((k) => parseFloat(k.close));
-
-      this.btcReturns = [];
-      for (let i = 1; i < closes.length; i++) {
-        this.btcReturns.push((closes[i] - closes[i - 1]) / closes[i - 1]);
-      }
-
-      return this.btcReturns;
-    } catch {
-      return [];
-    }
-  }
-
-  /**
-   * Pearson correlation coefficient.
-   */
   private pearsonCorrelation(x: number[], y: number[]): number {
     const n = Math.min(x.length, y.length);
     if (n < 3) return 0;
-
-    const xSlice = x.slice(-n);
-    const ySlice = y.slice(-n);
-
-    const meanX = xSlice.reduce((a, b) => a + b, 0) / n;
-    const meanY = ySlice.reduce((a, b) => a + b, 0) / n;
-
-    let numerator = 0;
-    let denomX = 0;
-    let denomY = 0;
-
+    const xS = x.slice(-n);
+    const yS = y.slice(-n);
+    const mX = xS.reduce((a, b) => a + b, 0) / n;
+    const mY = yS.reduce((a, b) => a + b, 0) / n;
+    let num = 0, dX = 0, dY = 0;
     for (let i = 0; i < n; i++) {
-      const dx = xSlice[i] - meanX;
-      const dy = ySlice[i] - meanY;
-      numerator += dx * dy;
-      denomX += dx * dx;
-      denomY += dy * dy;
+      const dx = xS[i] - mX;
+      const dy = yS[i] - mY;
+      num += dx * dy;
+      dX += dx * dx;
+      dY += dy * dy;
     }
-
-    const denom = Math.sqrt(denomX * denomY);
-    if (denom === 0) return 0;
-
-    return numerator / denom;
+    const d = Math.sqrt(dX * dY);
+    return d === 0 ? 0 : num / d;
   }
 
-  /**
-   * Update scoring weights (used by Auto-Optimizer).
-   */
   updateWeights(newWeights: Partial<ScoreWeights>): void {
     this.weights = { ...this.weights, ...newWeights };
-    logger.info({ weights: this.weights }, 'Dynamic scorer weights updated');
+    logger.info({ weights: this.weights }, 'Scorer weights updated');
   }
 
   getWeights(): ScoreWeights {
