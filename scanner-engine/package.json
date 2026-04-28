@@ -1,0 +1,31 @@
+{
+  "name": "crypto-scanner-engine",
+  "version": "1.0.0",
+  "description": "High-Performance Crypto Scanner Engine with Multi-API Integration and Key Rotation",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "lint": "eslint src/ --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["crypto", "scanner", "binance", "dexscreener", "typescript"],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "axios": "^1.6.5",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.10.0",
+    "p-limit": "^3.1.0",
+    "pino": "^8.17.2",
+    "pino-pretty": "^10.3.1"
+  }
+}
