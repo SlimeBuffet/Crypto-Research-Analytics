@@ -130,6 +130,98 @@ Each coin is scored across 5 dimensions:
 | **Momentum** | 5 | 7d & 30d price change trends |
 | **On-chain** | 5 | DEX transactions, DEX/CEX volume ratio, liquidity/MC ratio |
 
+## Hedge Fund Intelligence & Execution Engine
+
+A comprehensive institutional-grade system that extends the Scanner Engine with a 5-stage pipeline for identifying and executing high-alpha opportunities.
+
+### Architecture
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                 HEDGE FUND INTELLIGENCE PIPELINE                     │
+├──────────────┬─────────────┬────────────┬──────────┬─────────────────┤
+│  Stage 1     │  Stage 2    │  Stage 3   │ Stage 4  │    Stage 5      │
+│  TRIGGER     │  ALPHA      │  RISK      │ MACRO    │  EXECUTION      │
+│  (Filter)    │  (Brain)    │  (Shield)  │ (Compass)│  (Sword)        │
+├──────────────┼─────────────┼────────────┼──────────┼─────────────────┤
+│ SMA Price    │ Value Score │ Correlation│ DXY Index│ Order Book      │
+│ Channel      │ Momentum vs │ Matrix     │ Fed Rates│ Depth Analysis  │
+│ High(8,5)    │ BTC ROC     │ VaR (95%)  │ Risk     │ VWAP/TWAP       │
+│ Low(8,5)     │ Sentiment   │ Security   │ Multiplier│ Smart Order    │
+│ Price > High │ Whale Flow  │ Audit      │ Signal   │ Routing         │
+└──────────────┴─────────────┴────────────┴──────────┴─────────────────┘
+```
+
+### Workflow Components
+
+| Component       | Function            | Behavior                                      |
+|-----------------|---------------------|-----------------------------------------------|
+| Trigger Unit    | SMA High/Low (8,5)  | Determines which coins to inspect further     |
+| Intelligence    | Alpha & Sentiment   | Verifies the truth behind price movements     |
+| Gatekeeper      | Risk & Security     | Blocks scam tokens or highly correlated assets|
+| Macro Unit      | DXY & Rates         | Green/Yellow/Red signal based on global macro |
+| Execution Unit  | VWAP/TWAP           | Enter positions smoothly to minimize slippage |
+
+### Quick Start (Hedge Fund Engine)
+
+```bash
+cd scanner-engine
+
+# Install dependencies
+npm install
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your API keys
+
+# Build TypeScript
+npm run build
+
+# Run the hedge fund pipeline
+npm run hedge-fund
+
+# Or in dev mode
+npm run hedge-fund:dev
+```
+
+### Configuration
+
+| Variable               | Default  | Description                                 |
+|------------------------|----------|---------------------------------------------|
+| `TRIGGER_HIGH_PERIOD`  | `8`      | Lookback period for highest highs           |
+| `TRIGGER_LOW_PERIOD`   | `8`      | Lookback period for lowest lows             |
+| `TRIGGER_SMA_PERIOD`   | `5`      | SMA smoothing period for channel lines      |
+| `TRIGGER_OFFSET`       | `0`      | Channel offset                              |
+| `MAX_CORRELATION`      | `0.8`    | Maximum pairwise correlation allowed        |
+| `MAX_SLIPPAGE_PCT`     | `1.0`    | Maximum acceptable slippage percentage      |
+| `POSITION_SIZE_USD`    | `100000` | Default position size in USD                |
+| `MAX_OPEN_POSITIONS`   | `10`     | Maximum concurrent open positions           |
+| `EXECUTION_TYPE`       | `VWAP`   | Execution strategy: VWAP or TWAP            |
+| `EXECUTION_SLICES`     | `10`     | Number of execution slices                  |
+| `EXECUTION_INTERVAL_MS`| `60000`  | Interval between execution slices (ms)      |
+| `MACRO_ENABLED`        | `true`   | Enable/disable macro overlay                |
+| `FRED_API_KEY`         | —        | FRED API key for DXY & Fed rate data        |
+
+### Directory Structure (Hedge Fund Extension)
+
+```
+scanner-engine/src/hedge-fund/
+├── types.ts                    # Domain types for all pillars
+├── index.ts                    # Public API exports
+├── trigger/
+│   ├── price-channel.ts        # SMA High/Low Price Channel Filter
+│   └── index.ts
+├── pillars/
+│   ├── alpha.ts                # Pillar A: Multi-Factor Alpha
+│   ├── risk.ts                 # Pillar B: Quantitative Risk Engine
+│   ├── execution.ts            # Pillar C: Liquidity & Execution
+│   ├── macro.ts                # Pillar D: Global Macro Overlay
+│   └── index.ts
+└── engine/
+    ├── hedge-fund-engine.ts    # Main pipeline orchestrator
+    └── index.ts
+```
+
 ## Security
 
 - All API keys loaded exclusively from `.env` (never hardcoded)
