@@ -388,7 +388,18 @@ export class MasterScannerEngine {
             rawScore: 0, volatilityAdjustedScore: 0, correlationPenalty: 1,
             finalScore: 0, formula: 'N/A', weights: this.config.weights,
           },
-          finalVerdict: dynScore && dynScore.finalScore > 15 ? 'STRONG_BUY' : 'NEUTRAL',
+          finalVerdict: (() => {
+            const forensic = forensicResults.get(coin.symbol);
+            const manipulation = manipResults.get(coin.symbol);
+            if (forensic && !forensic.isApproved) return 'AVOID' as const;
+            if (manipulation && manipulation.isManipulated) return 'AVOID' as const;
+            const convergence = convergenceResults.get(coin.symbol);
+            if (convergence?.isUltraGem && dynScore && dynScore.finalScore >= 15) return 'ULTRA_GEM' as const;
+            if (dynScore && dynScore.finalScore > 20) return 'STRONG_BUY' as const;
+            if (dynScore && dynScore.finalScore > 15) return 'BUY' as const;
+            if (dynScore && dynScore.finalScore > 10) return 'NEUTRAL' as const;
+            return 'AVOID' as const;
+          })(),
           timestamp: Date.now(),
         });
       }
