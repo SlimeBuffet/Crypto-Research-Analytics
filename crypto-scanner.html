@@ -882,7 +882,10 @@
                         <option value="score">Overall Score</option>
                         <option value="marketCap">Market Cap (Low to High)</option>
                         <option value="volume">Volume (High to Low)</option>
+                        <option value="change24h">24h Change</option>
                         <option value="change7d">7d Change</option>
+                        <option value="change30d">30d Change</option>
+                        <option value="fdvRatio">FDV/MC Ratio</option>
                     </select>
                 </div>
                 
@@ -1271,8 +1274,8 @@
             // Liquidity Score (0-5)
             let liqScore = 0;
             const volume = market.total_volume?.usd || 0;
-            const marketCap = market.market_cap?.usd || 1;
-            const volumeRatio = volume / marketCap;
+            const marketCap = market.market_cap?.usd || 0;
+            const volumeRatio = marketCap > 0 ? volume / marketCap : 0;
             
             if (volumeRatio > 0.5) liqScore = 5;
             else if (volumeRatio > 0.2) liqScore = 4;
@@ -1283,17 +1286,18 @@
             // Tokenomics Score (0-5)
             let tokScore = 0;
             const fdv = market.fully_diluted_valuation?.usd || marketCap;
-            const fdvRatio = fdv / marketCap;
+            const fdvRatio = marketCap > 0 ? fdv / marketCap : 0;
             
-            if (fdvRatio < 1.2) tokScore = 5;
-            else if (fdvRatio < 1.5) tokScore = 4;
-            else if (fdvRatio < 2) tokScore = 3;
-            else if (fdvRatio < 3) tokScore = 2;
-            else if (fdvRatio < 5) tokScore = 1;
+            if (fdvRatio > 0 && fdvRatio < 1.2) tokScore = 5;
+            else if (fdvRatio >= 1.2 && fdvRatio < 1.5) tokScore = 4;
+            else if (fdvRatio >= 1.5 && fdvRatio < 2) tokScore = 3;
+            else if (fdvRatio >= 2 && fdvRatio < 3) tokScore = 2;
+            else if (fdvRatio >= 3 && fdvRatio < 5) tokScore = 1;
 
             // Market Cap Score (0-5) - Lower cap = higher potential
             let mcScore = 0;
-            if (marketCap < 50e6) mcScore = 5;
+            if (marketCap <= 0) mcScore = 0;
+            else if (marketCap < 50e6) mcScore = 5;
             else if (marketCap < 100e6) mcScore = 4;
             else if (marketCap < 200e6) mcScore = 3;
             else if (marketCap < 500e6) mcScore = 2;
@@ -1339,14 +1343,14 @@
             'AAVE': 'DeFi', 'UNI': 'DeFi', 'MKR': 'DeFi', 'COMP': 'DeFi', 'CRV': 'DeFi', 'SUSHI': 'DeFi', '1INCH': 'DeFi',
             'BAL': 'DeFi', 'YFI': 'DeFi', 'CVX': 'DeFi', 'LDO': 'DeFi', 'RPL': 'DeFi', 'FXS': 'DeFi', 'SNX': 'DeFi',
             'PENDLE': 'DeFi', 'INJ': 'DeFi', 'KAVA': 'DeFi', 'RUNE': 'DeFi', 'BNT': 'DeFi', 'KNC': 'DeFi', 'ZRX': 'DeFi',
-            'JUP': 'DeFi', 'ONDO': 'DeFi', 'ENA': 'DeFi', 'ETHFI': 'DeFi', 'LRC': 'DeFi', 'CAKE': 'DeFi',
-            'ARB': 'Modular', 'OP': 'Modular', 'MATIC': 'Modular', 'STRK': 'Modular', 'IMX': 'Modular', 'ZIL': 'Modular',
+            'JUP': 'DeFi', 'ENA': 'DeFi', 'ETHFI': 'DeFi', 'LRC': 'DeFi', 'CAKE': 'DeFi',
+            'ARB': 'Modular', 'OP': 'Modular', 'MATIC': 'Modular', 'STRK': 'Modular', 'ZIL': 'Modular',
             'SUI': 'Modular', 'SEI': 'Modular', 'TIA': 'Modular', 'DYM': 'Modular', 'STX': 'Modular',
             'FIL': 'DePIN', 'AR': 'DePIN', 'STORJ': 'DePIN', 'LPT': 'DePIN', 'THETA': 'DePIN', 'PYTH': 'DePIN',
             'GRT': 'DePIN', 'LINK': 'DePIN', 'FLOW': 'DePIN',
             'CFG': 'RWA', 'ONDO': 'RWA',
             'AXS': 'Gaming', 'SAND': 'Gaming', 'MANA': 'Gaming', 'GALA': 'Gaming', 'ENJ': 'Gaming', 'PIXEL': 'Gaming',
-            'IMX': 'Gaming', 'FLOKI': 'Gaming',
+            'IMX': 'Gaming',
             'DOGE': 'Meme', 'SHIB': 'Meme', 'PEPE': 'Meme', 'BONK': 'Meme', 'WIF': 'Meme', 'FLOKI': 'Meme',
             'BOME': 'Meme', 'ACT': 'Meme',
             'DOT': 'Interoperability', 'ATOM': 'Interoperability', 'W': 'Interoperability'
@@ -1408,7 +1412,7 @@
             if (categories.some(c => c.toLowerCase().includes('rwa')) ||
                 description.includes('real world assets') ||
                 description.includes('tokenization') ||
-                description.includes('rw')) {
+                description.includes('real-world')) {
                 return 'RWA';
             }
 
@@ -1541,7 +1545,7 @@
             // Low market cap
             const mc = market.market_cap?.usd || 0;
             if (mc < 100e6) {
-                reasons.push(`<li>✅ Market cap rendah ($${formatNumber(mc)}) memberikan ruang pertumbuhan signifikan</li>`);
+                reasons.push(`<li>✅ Market cap rendah (${formatNumber(mc)}) memberikan ruang pertumbuhan signifikan</li>`);
             }
             
             // Good volume ratio
@@ -1684,8 +1688,16 @@
                 const mcB = b.market_data?.market_cap?.usd || 0;
                 const volA = a.market_data?.total_volume?.usd || 0;
                 const volB = b.market_data?.total_volume?.usd || 0;
-                const changeA = a.market_data?.price_change_percentage_7d || 0;
-                const changeB = b.market_data?.price_change_percentage_7d || 0;
+                const change7dA = a.market_data?.price_change_percentage_7d || 0;
+                const change7dB = b.market_data?.price_change_percentage_7d || 0;
+                const change24hA = a.market_data?.price_change_percentage_24h || 0;
+                const change24hB = b.market_data?.price_change_percentage_24h || 0;
+                const change30dA = a.market_data?.price_change_percentage_30d_in_currency?.usd || 0;
+                const change30dB = b.market_data?.price_change_percentage_30d_in_currency?.usd || 0;
+                const fdvA = a.market_data?.fully_diluted_valuation?.usd || mcA;
+                const fdvB = b.market_data?.fully_diluted_valuation?.usd || mcB;
+                const fdvRatioA = mcA > 0 ? fdvA / mcA : Infinity;
+                const fdvRatioB = mcB > 0 ? fdvB / mcB : Infinity;
                 
                 switch(sortBy) {
                     case 'score':
@@ -1694,8 +1706,14 @@
                         return mcA - mcB;
                     case 'volume':
                         return volB - volA;
+                    case 'change24h':
+                        return change24hB - change24hA;
                     case 'change7d':
-                        return changeB - changeA;
+                        return change7dB - change7dA;
+                    case 'change30d':
+                        return change30dB - change30dA;
+                    case 'fdvRatio':
+                        return fdvRatioA - fdvRatioB;
                     default:
                         return scoreB - scoreA;
                 }
