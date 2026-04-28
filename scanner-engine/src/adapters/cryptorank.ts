@@ -63,7 +63,7 @@ export class CryptoRankAdapter {
             priceChange7d: usd.percentChange7d || 0,
             priceChange30d: usd.percentChange30d || 0,
             sector: coin.category?.[0] || 'Other',
-            categories: coin.category || [],
+            categories: Array.isArray(coin.category) ? coin.category : [],
             source: 'cryptorank',
           };
 
