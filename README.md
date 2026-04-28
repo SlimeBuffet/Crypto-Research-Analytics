@@ -249,7 +249,15 @@ GET /klines
 ├── index.html             # Landing page / Hub
 ├── crypto-scanner.html    # Real-time scanner (Binance API)
 ├── crypto-analyzer.html   # Deep analyzer (curated picks)
-└── README.md             # This documentation file
+├── scanner-engine/        # Node.js/TypeScript backend scanner engine
+│   ├── src/
+│   │   ├── adapters/      # API adapters (Binance, DexScreener, etc.)
+│   │   ├── core/          # Engine, scorer, API key manager
+│   │   ├── types/         # TypeScript interfaces
+│   │   └── utils/         # Cache, fetcher, logger
+│   ├── .env.example       # Environment template
+│   └── README.md          # Scanner engine documentation
+└── README.md              # This documentation file
 ```
 
 ## Limitations
@@ -298,12 +306,18 @@ GET /klines
 - [ ] Portfolio tracking integration
 - [ ] Price alerts and notifications
 - [ ] Historical performance backtesting
+- [x] Backend scanner engine with multi-API integration
+- [x] API key rotation and management
 - [ ] Multi-exchange support (Coinbase, Kraken, etc.)
 
 ## Resources
 
 - [Binance API Documentation](https://binance-docs.github.io/apidocs/)
 - [Binance Markets](https://www.binance.com/en/markets)
+- [DexScreener API](https://docs.dexscreener.com/)
+- [CryptoRank API](https://cryptorank.io/api)
+- [Mobula API](https://docs.mobula.io/)
+- [CoinCap API](https://docs.coincap.io/)
 
 ## Contributing
 
