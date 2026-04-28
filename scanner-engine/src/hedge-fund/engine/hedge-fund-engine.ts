@@ -6,6 +6,10 @@ import { logger } from '../../utils/logger';
 
 import { PriceChannelTrigger } from '../trigger';
 import { AlphaEngine, RiskEngine, ExecutionEngine, MacroEngine } from '../pillars';
+import { OnChainAnalyticsEngine } from '../onchain';
+import { MicrostructureEngine } from '../microstructure';
+import { NarrativeEngine } from '../narrative';
+import { AlertManager } from '../alerts';
 import {
   HedgeFundConfig,
   PipelineResult,
@@ -47,6 +51,10 @@ export class HedgeFundEngine {
   private risk: RiskEngine;
   private execution: ExecutionEngine;
   private macro: MacroEngine;
+  private onchain: OnChainAnalyticsEngine;
+  private microstructure: MicrostructureEngine;
+  private narrative: NarrativeEngine;
+  private alertManager: AlertManager;
   private portfolio: CoinData[] = [];
 
   constructor(config?: Partial<HedgeFundConfig>) {
@@ -62,6 +70,10 @@ export class HedgeFundEngine {
 
     this.execution = new ExecutionEngine(this.config.maxSlippagePct);
     this.macro = new MacroEngine();
+    this.onchain = new OnChainAnalyticsEngine();
+    this.microstructure = new MicrostructureEngine();
+    this.narrative = new NarrativeEngine();
+    this.alertManager = new AlertManager();
   }
 
   /**
@@ -167,6 +179,24 @@ export class HedgeFundEngine {
     }
 
     // ================================================================
+    // Stage 4b: On-Chain Analytics
+    // ================================================================
+    logger.info('--- Stage 4b: On-Chain Analytics ---');
+    const onchainResults = await this.onchain.analyzeBatch(macroApproved);
+
+    // ================================================================
+    // Stage 4c: Market Microstructure
+    // ================================================================
+    logger.info('--- Stage 4c: Market Microstructure ---');
+    const microResults = await this.microstructure.analyzeBatch(macroApproved);
+
+    // ================================================================
+    // Stage 4d: Narrative / Catalyst Analysis
+    // ================================================================
+    logger.info('--- Stage 4d: Narrative / Catalyst Analysis ---');
+    const narrativeResults = await this.narrative.analyzeBatch(macroApproved);
+
+    // ================================================================
     // Stage 5: Pillar C — Execution Planning
     // ================================================================
     logger.info('--- Stage 5: Pillar C — Execution Planning ---');
@@ -208,6 +238,10 @@ export class HedgeFundEngine {
           rejectionReason = `Slippage too high: ${exec.orderBookAnalysis.estimatedSlippage.toFixed(2)}%`;
         }
 
+        const onchain = onchainResults.get(coin.symbol) ?? null;
+        const micro = microResults.get(coin.symbol) ?? null;
+        const narrative = narrativeResults.get(coin.symbol) ?? null;
+
         return {
           symbol: coin.symbol,
           coin,
@@ -216,6 +250,9 @@ export class HedgeFundEngine {
           risk,
           macro: macroState,
           execution: exec,
+          onchain,
+          microstructure: micro,
+          narrative,
           finalVerdict,
           rejectionReason,
           timestamp: Date.now(),
@@ -232,6 +269,22 @@ export class HedgeFundEngine {
     );
 
     this.printSummary(summary);
+
+    // Dispatch alerts for triggered coins
+    for (const result of results.filter((r) => r.finalVerdict === 'EXECUTE')) {
+      await this.alertManager.alertTriggerActivated(
+        result.symbol,
+        result.trigger.currentPrice,
+        result.trigger.highLine,
+      );
+    }
+
+    if (macroState.signal !== 'GREEN') {
+      await this.alertManager.alertMacroSignalChange(
+        macroState.signal,
+        macroState.recommendation,
+      );
+    }
 
     return summary;
   }
@@ -286,6 +339,9 @@ export class HedgeFundEngine {
             ? `${exec.orderBookAnalysis.estimatedSlippage.toFixed(2)}%`
             : 'N/A',
           routing: exec ? exec.routingPlan.primaryExchange : 'N/A',
+          narrativeScore: result.narrative?.narrativeScore ?? 'N/A',
+          fundingRate: result.microstructure?.fundingRate.currentRate ?? 'N/A',
+          walletConc: result.onchain?.walletConcentration.giniCoefficient ?? 'N/A',
           reason: result.rejectionReason || 'CLEAR',
         },
         `${result.finalVerdict} ${result.symbol}`,
