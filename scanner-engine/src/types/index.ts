@@ -8,7 +8,9 @@ export type Chain = 'bsc' | 'solana' | 'worldchain' | 'ethereum';
 /** Supported API services for key rotation */
 export type ApiService =
   | 'alchemy'
-  | 'quicknode_http'
+  | 'quicknode_http_bsc'
+  | 'quicknode_http_eth'
+  | 'quicknode_http_worldchain'
   | 'quicknode_wss'
   | 'cryptorank'
   | 'mobula'

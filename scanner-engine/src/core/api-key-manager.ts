@@ -26,7 +26,9 @@ export class ApiKeyManager {
   private loadKeysFromEnv(): void {
     const serviceEnvMap: Record<ApiService, string> = {
       alchemy: 'ALCHEMY_KEY',
-      quicknode_http: 'QUICKNODE_HTTP',
+      quicknode_http_bsc: 'QUICKNODE_HTTP_BSC',
+      quicknode_http_eth: 'QUICKNODE_HTTP_ETH',
+      quicknode_http_worldchain: 'QUICKNODE_HTTP_WORLDCHAIN',
       quicknode_wss: 'QUICKNODE_WSS',
       cryptorank: 'CRYPTORANK_API_KEY',
       mobula: 'MOBULA_API_KEY',

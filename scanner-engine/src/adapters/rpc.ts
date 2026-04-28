@@ -16,31 +16,39 @@ export class RpcAdapter {
     const existing = this.providers.get(chain);
     if (existing) return existing;
 
-    const alchemyKey = this.keyManager.getKey('alchemy');
-    const quicknodeUrl = this.keyManager.getKey('quicknode_http');
-
-    const chainUrls: Record<string, string[]> = {
-      bsc: ['https://bsc-dataseed.binance.org'],
-      ethereum: [],
-      worldchain: [],
-    };
-
-    if (alchemyKey) {
-      chainUrls.ethereum.push(`https://eth-mainnet.g.alchemy.com/v2/${alchemyKey}`);
-    }
-    if (quicknodeUrl) {
-      chainUrls[chain]?.push(quicknodeUrl);
-    }
-
-    const urls = chainUrls[chain];
-    if (!urls || urls.length === 0) {
+    const url = this.resolveRpcUrl(chain);
+    if (!url) {
       logger.debug({ chain }, 'No RPC endpoint available');
       return null;
     }
 
-    const provider = new ethers.JsonRpcProvider(urls[0]);
+    const provider = new ethers.JsonRpcProvider(url);
     this.providers.set(chain, provider);
     return provider;
+  }
+
+  /** Resolve the best RPC URL for a specific chain */
+  private resolveRpcUrl(chain: 'bsc' | 'ethereum' | 'worldchain'): string | null {
+    const quicknodeServiceMap = {
+      bsc: 'quicknode_http_bsc' as const,
+      ethereum: 'quicknode_http_eth' as const,
+      worldchain: 'quicknode_http_worldchain' as const,
+    };
+
+    // Chain-specific QuickNode endpoint (first priority for all chains)
+    const quicknodeUrl = this.keyManager.getKey(quicknodeServiceMap[chain]);
+    if (quicknodeUrl) return quicknodeUrl;
+
+    // Alchemy — only serves Ethereum
+    if (chain === 'ethereum') {
+      const alchemyKey = this.keyManager.getKey('alchemy');
+      if (alchemyKey) return `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey}`;
+    }
+
+    // Public fallback for BSC
+    if (chain === 'bsc') return 'https://bsc-dataseed.binance.org';
+
+    return null;
   }
 
   /** Verify a token's on-chain supply using ERC-20 totalSupply() */
