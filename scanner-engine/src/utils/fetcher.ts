@@ -45,6 +45,16 @@ export async function fetchWithBackoff<T>(
         const isRetryable =
           !status || status === 429 || status >= 500;
 
+        // Provide clear error messages for common non-retryable failures
+        if (status === 451) {
+          logger.error(
+            { label, status },
+            'HTTP 451 Unavailable For Legal Reasons — endpoint is geo-restricted. ' +
+            'Try using data-api.binance.vision instead of api.binance.com',
+          );
+          throw error;
+        }
+
         if (!isRetryable || attempt === retries) {
           logger.error(
             { label, status, attempt, message: error.message },

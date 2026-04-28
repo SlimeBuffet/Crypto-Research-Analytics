@@ -8,6 +8,8 @@ import {
 import { fetchWithBackoff } from '../utils/fetcher';
 import { logger } from '../utils/logger';
 
+// Primary: data-api.binance.vision works globally (no geo-restriction).
+// api.binance.com may return 451 in restricted regions.
 const BASE_URL = process.env.BINANCE_BASE_URL || 'https://data-api.binance.vision/api/v3';
 
 /**

@@ -168,6 +168,62 @@ export interface CoinCapResponse {
 }
 
 // ---------------------------------------------------------------------------
+// CoinGecko API response types (fallback for CoinCap)
+// ---------------------------------------------------------------------------
+
+export interface CoinGeckoMarketCoin {
+  id: string;
+  symbol: string;
+  name: string;
+  current_price: number;
+  market_cap: number;
+  market_cap_rank: number;
+  fully_diluted_valuation: number | null;
+  total_volume: number;
+  circulating_supply: number;
+  total_supply: number | null;
+  max_supply: number | null;
+  price_change_percentage_24h: number | null;
+  price_change_percentage_7d_in_currency: number | null;
+  price_change_percentage_30d_in_currency: number | null;
+}
+
+// ---------------------------------------------------------------------------
+// LunarCrush API response types
+// ---------------------------------------------------------------------------
+
+export interface LunarCrushCoinData {
+  id: number;
+  symbol: string;
+  name: string;
+  galaxy_score: number | null;
+  alt_rank: number | null;
+  social_volume: number | null;
+  social_score: number | null;
+  social_contributors: number | null;
+  social_dominance: number | null;
+  market_cap: number | null;
+  volume_24h: number | null;
+  percent_change_24h: number | null;
+  percent_change_7d: number | null;
+  percent_change_30d: number | null;
+}
+
+export interface LunarCrushResponse {
+  data: LunarCrushCoinData[];
+}
+
+export interface SentimentData {
+  galaxyScore: number;
+  altRank: number;
+  socialVolume: number;
+  socialScore: number;
+  socialContributors: number;
+  socialDominance: number;
+  source: string;
+}
+
+// ---------------------------------------------------------------------------
 // Internal domain types
 // ---------------------------------------------------------------------------
 
