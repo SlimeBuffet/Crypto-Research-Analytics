@@ -10,7 +10,9 @@ import {
   CumulativeVolumeDelta,
 } from '../types';
 
-const BINANCE_FAPI = 'https://fapi.binance.com/fapi/v1';
+// fapi.binance.com returns 451 in geo-restricted regions.
+// Graceful degradation: funding rate / OI return defaults when unavailable.
+const BINANCE_FAPI = process.env.BINANCE_FAPI_URL || 'https://fapi.binance.com/fapi/v1';
 
 /**
  * Module 2: Market Microstructure Analysis

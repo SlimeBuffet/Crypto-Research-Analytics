@@ -169,7 +169,8 @@ export class AlertManager {
       .map((s) => `${s.toLowerCase()}usdt@ticker`)
       .join('/');
 
-    const wsUrl = `wss://stream.binance.com:9443/stream?streams=${streams}`;
+    const wsBase = process.env.BINANCE_WS_URL || 'wss://data-stream.binance.vision';
+    const wsUrl = `${wsBase}/stream?streams=${streams}`;
 
     logger.info(
       { symbols: symbols.length, url: wsUrl.slice(0, 80) },
