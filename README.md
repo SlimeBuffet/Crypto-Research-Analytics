@@ -15,7 +15,7 @@ A powerful web-based platform for cryptocurrency research and analysis, featurin
 
 ### 🔍 Automated Scanning
 - Scans all Binance-listed coins with active USDT trading pairs
-- Real-time data fetching from CoinGecko Pro API
+- Real-time data fetching from Binance API
 - Automatic filtering based on multiple criteria
 - Progress tracking with detailed activity logs
 
@@ -95,7 +95,7 @@ Transparent 0-25 scoring based on:
 
 ### Step 1: Initialize Scan
 Click the **"🚀 Start Scanning Binance"** button to begin the automated scanning process. The tool will:
-- Fetch all Binance tickers from CoinGecko
+- Fetch all Binance tickers from Binance API
 - Filter for active USDT pairs
 - Collect market data for each coin
 - Apply screening criteria
@@ -218,18 +218,17 @@ Tokenization of real-world assets on blockchain.
 ## Technical Details
 
 ### API Configuration
-- **Provider**: CoinGecko Pro API
-- **Base URL**: `https://pro-api.coingecko.com/api/v3`
-- **Auth Header**: `x-cg-pro-api-key`
-- **Rate Limit**: 250+ calls/minute (Pro plan)
-- **Retry Logic**: Exponential backoff on 429 errors
+- **Provider**: Binance API
+- **Base URL**: `https://data-api.binance.vision/api/v3`
+- **Auth**: No API key required
+- **Rate Limit**: Standard Binance rate limits
+- **Retry Logic**: Exponential backoff on errors
 
 ### Data Endpoints Used
 ```
-GET /exchanges/binance/tickers
-GET /coins/markets
-GET /coins/{id}
-GET /search/trending
+GET /exchangeInfo
+GET /ticker/24hr
+GET /klines
 ```
 
 ### Browser Compatibility
@@ -248,7 +247,7 @@ GET /search/trending
 ```
 /workspace/
 ├── index.html             # Landing page / Hub
-├── crypto-scanner.html    # Real-time scanner (CoinGecko API)
+├── crypto-scanner.html    # Real-time scanner (Binance API)
 ├── crypto-analyzer.html   # Deep analyzer (curated picks)
 └── README.md             # This documentation file
 ```
@@ -257,7 +256,7 @@ GET /search/trending
 
 1. **API Rate Limits**: Free tier has call limits; heavy usage may trigger throttling
 2. **Data Freshness**: Not real-time; typical delay 1-5 minutes
-3. **Coverage**: Only coins listed on CoinGecko with Binance pairs
+3. **Coverage**: Only coins listed on Binance with USDT pairs
 4. **No Historical Backtesting**: Forward-looking analysis only
 5. **Browser-Based**: Requires JavaScript enabled; no offline mode
 
@@ -284,8 +283,8 @@ GET /search/trending
 
 ## Security Notes
 
-- API key is embedded in client-side code (acceptable for personal use)
-- No data is sent to third-party servers except CoinGecko API
+- No API key required for Binance API
+- No data is sent to third-party servers except Binance API
 - No cookies or local storage used
 - Open-source and transparent - inspect code freely
 
@@ -303,10 +302,8 @@ GET /search/trending
 
 ## Resources
 
-- [CoinGecko API Documentation](https://docs.coingecko.com/)
-- [CoinGecko Pricing](https://www.coingecko.com/en/api/pricing)
+- [Binance API Documentation](https://binance-docs.github.io/apidocs/)
 - [Binance Markets](https://www.binance.com/en/markets)
-- [CoinGecko Dashboard](https://www.coingecko.com/en/developers/dashboard)
 
 ## Contributing
 
