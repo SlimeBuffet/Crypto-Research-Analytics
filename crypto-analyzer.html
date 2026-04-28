@@ -1322,6 +1322,11 @@
             if (filtered.length > 0) {
                 const avgMC = filtered.reduce((sum, coin) => sum + coin.marketCap, 0) / filtered.length;
                 document.getElementById('avgMarketCap').textContent = formatNumber(avgMC);
+                const uniqueSectors = new Set(filtered.map(coin => coin.sector));
+                document.getElementById('totalSectors').textContent = uniqueSectors.size;
+            } else {
+                document.getElementById('avgMarketCap').textContent = '$0';
+                document.getElementById('totalSectors').textContent = '0';
             }
         }
 
