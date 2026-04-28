@@ -1,4 +1,4 @@
-import { MobulaMultiResponse, EnrichmentData } from '../types';
+import { MobulaMultiResponse, MobulaCoinData, EnrichmentData } from '../types';
 import { ApiKeyManager } from '../core/api-key-manager';
 import { TtlCache } from '../utils/cache';
 import { fetchWithBackoff } from '../utils/fetcher';
@@ -43,7 +43,7 @@ export class MobulaAdapter {
     try {
       const symbolParam = uncached.join(',');
       const data = await fetchWithBackoff<MobulaMultiResponse>(
-        `${BASE_URL}/market/multi-data?assets=${symbolParam}`,
+        `${BASE_URL}/market/multi-data?symbols=${symbolParam}`,
         {
           headers: { Authorization: apiKey },
           label: `mobula/multi-data (${uncached.length} symbols)`,
@@ -51,7 +51,12 @@ export class MobulaAdapter {
       );
 
       if (data.data) {
-        for (const coin of data.data) {
+        const coins: MobulaCoinData[] = Array.isArray(data.data)
+          ? data.data
+          : Object.values(data.data).filter((v): v is MobulaCoinData => v != null);
+
+        for (const coin of coins) {
+          if (!coin.symbol) continue;
           const enrichment: EnrichmentData = {
             name: coin.name,
             marketCap: coin.market_cap || 0,
@@ -73,7 +78,7 @@ export class MobulaAdapter {
       }
 
       logger.info(
-        { fetched: data.data?.length || 0, cached: symbols.length - uncached.length },
+        { fetched: results.size - (symbols.length - uncached.length), cached: symbols.length - uncached.length },
         'Mobula enrichment complete',
       );
     } catch (err) {

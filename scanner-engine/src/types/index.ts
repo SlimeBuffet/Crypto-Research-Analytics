@@ -140,7 +140,8 @@ export interface MobulaResponse {
 }
 
 export interface MobulaMultiResponse {
-  data: MobulaCoinData[];
+  data: MobulaCoinData[] | Record<string, MobulaCoinData>;
+  dataArray?: MobulaCoinData[];
 }
 
 // ---------------------------------------------------------------------------
