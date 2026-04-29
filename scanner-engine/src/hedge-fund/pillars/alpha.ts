@@ -1,4 +1,4 @@
-import { CoinData } from '../../types';
+import { CoinData, IBinanceAdapter } from '../../types';
 import { BinanceAdapter } from '../../adapters/binance';
 import { logger } from '../../utils/logger';
 import { AlphaFactorResult } from '../types';
@@ -13,10 +13,10 @@ import { AlphaFactorResult } from '../types';
  *   4. Whale Score      — Net Exchange Inflow/Outflow
  */
 export class AlphaEngine {
-  private binance: BinanceAdapter;
+  private binance: IBinanceAdapter;
 
-  constructor() {
-    this.binance = new BinanceAdapter();
+  constructor(binance?: IBinanceAdapter) {
+    this.binance = binance ?? new BinanceAdapter();
   }
 
   async analyze(coin: CoinData): Promise<AlphaFactorResult> {

@@ -1,4 +1,4 @@
-import { CoinData } from '../../types';
+import { CoinData, IBinanceAdapter } from '../../types';
 import { BinanceAdapter } from '../../adapters/binance';
 import { fetchWithBackoff } from '../../utils/fetcher';
 import { logger } from '../../utils/logger';
@@ -22,11 +22,11 @@ import {
  *   3. Smart Order Routing       — route between Binance + top DEXs
  */
 export class ExecutionEngine {
-  private binance: BinanceAdapter;
+  private binance: IBinanceAdapter;
   private maxSlippagePct: number;
 
-  constructor(maxSlippagePct = 1.0) {
-    this.binance = new BinanceAdapter();
+  constructor(maxSlippagePct = 1.0, binance?: IBinanceAdapter) {
+    this.binance = binance ?? new BinanceAdapter();
     this.maxSlippagePct = maxSlippagePct;
   }
 
