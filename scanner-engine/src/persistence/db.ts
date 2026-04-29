@@ -4,6 +4,7 @@ import * as schema from './schema';
 import { logger } from '../utils/logger';
 
 let db: BetterSQLite3Database<typeof schema> | null = null;
+let rawSqlite: Database.Database | null = null;
 
 /**
  * Get or create the singleton Drizzle ORM database connection.
@@ -14,13 +15,13 @@ export function getDb(): BetterSQLite3Database<typeof schema> {
 
   const dbPath = process.env.DB_PATH || './data/scanner.db';
 
-  const sqlite = new Database(dbPath);
-  sqlite.pragma('journal_mode = WAL');
-  sqlite.pragma('busy_timeout = 5000');
+  rawSqlite = new Database(dbPath);
+  rawSqlite.pragma('journal_mode = WAL');
+  rawSqlite.pragma('busy_timeout = 5000');
 
-  db = drizzle(sqlite, { schema });
+  db = drizzle(rawSqlite, { schema });
 
-  initSchema(sqlite);
+  initSchema(rawSqlite);
 
   logger.info({ path: dbPath }, 'SQLite database initialized');
   return db;
@@ -76,5 +77,9 @@ function initSchema(sqlite: Database.Database): void {
  * Close the database connection. Useful for graceful shutdown.
  */
 export function closeDb(): void {
+  if (rawSqlite) {
+    rawSqlite.close();
+    rawSqlite = null;
+  }
   db = null;
 }
