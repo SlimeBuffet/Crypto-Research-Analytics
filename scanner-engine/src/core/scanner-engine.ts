@@ -4,6 +4,8 @@ import {
   EnrichmentData,
   OnChainData,
   ScannerConfig,
+  IBinanceAdapter,
+  IAlphaScorer,
 } from '../types';
 import { ApiKeyManager } from './api-key-manager';
 import { AlphaScorer } from './scorer';
@@ -18,6 +20,12 @@ import {
 import { TtlCache } from '../utils/cache';
 import { logger } from '../utils/logger';
 
+/** Dependencies that can be injected into ScannerEngine */
+export interface ScannerEngineDeps {
+  binance?: IBinanceAdapter;
+  scorer?: IAlphaScorer;
+}
+
 /**
  * Main Scanner Engine — orchestrates the 4-stage data pipeline.
  *
@@ -30,23 +38,23 @@ export class ScannerEngine {
   private config: ScannerConfig;
   private keyManager: ApiKeyManager;
   private cache: TtlCache;
-  private scorer: AlphaScorer;
+  private scorer: IAlphaScorer;
 
   // Adapters
-  private binance: BinanceAdapter;
+  private binance: IBinanceAdapter;
   private cryptoRank: CryptoRankAdapter;
   private mobula: MobulaAdapter;
   private dexScreener: DexScreenerAdapter;
   private rpc: RpcAdapter;
   private coinCap: CoinCapAdapter;
 
-  constructor() {
+  constructor(deps?: ScannerEngineDeps) {
     this.config = this.loadConfig();
     this.keyManager = new ApiKeyManager();
     this.cache = new TtlCache(this.config.cacheTtlSeconds);
-    this.scorer = new AlphaScorer();
+    this.scorer = deps?.scorer ?? new AlphaScorer();
 
-    this.binance = new BinanceAdapter();
+    this.binance = deps?.binance ?? new BinanceAdapter();
     this.cryptoRank = new CryptoRankAdapter(this.keyManager, this.cache);
     this.mobula = new MobulaAdapter(this.keyManager, this.cache);
     this.dexScreener = new DexScreenerAdapter(this.cache);

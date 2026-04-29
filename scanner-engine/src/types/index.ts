@@ -2,6 +2,8 @@
 // Core domain types for the Crypto Scanner Engine
 // ============================================================================
 
+export * from './interfaces';
+
 /** Supported blockchain networks for on-chain verification */
 export type Chain = 'bsc' | 'solana' | 'worldchain' | 'ethereum';
 

@@ -1,3 +1,4 @@
+import { IBinanceAdapter } from '../../types';
 import { BinanceAdapter } from '../../adapters/binance';
 import { fetchWithBackoff } from '../../utils/fetcher';
 import { logger } from '../../utils/logger';
@@ -18,11 +19,11 @@ export class MacroEngine {
   private cachedState: MacroState | null = null;
   private cacheExpiresAt = 0;
   private cacheTtlMs: number;
-  private binance: BinanceAdapter;
+  private binance: IBinanceAdapter;
 
-  constructor(cacheTtlMs = 3600_000) {
+  constructor(cacheTtlMs = 3600_000, binance?: IBinanceAdapter) {
     this.cacheTtlMs = cacheTtlMs;
-    this.binance = new BinanceAdapter();
+    this.binance = binance ?? new BinanceAdapter();
   }
 
   async getState(): Promise<MacroState> {
@@ -93,8 +94,11 @@ export class MacroEngine {
         const data = await fetchWithBackoff<{
           observations: Array<{ date: string; value: string }>;
         }>(
-          `${FRED_BASE_URL}?series_id=DTWEXBGS&api_key=${fredApiKey}&file_type=json&sort_order=desc&limit=30`,
-          { label: 'fred/dxy' },
+          `${FRED_BASE_URL}?series_id=DTWEXBGS&file_type=json&sort_order=desc&limit=30`,
+          {
+            label: 'fred/dxy',
+            headers: { Authorization: `Bearer ${fredApiKey}` },
+          },
         );
 
         const observations = data.observations
@@ -147,8 +151,11 @@ export class MacroEngine {
         const data = await fetchWithBackoff<{
           observations: Array<{ date: string; value: string }>;
         }>(
-          `${FRED_BASE_URL}?series_id=FEDFUNDS&api_key=${fredApiKey}&file_type=json&sort_order=desc&limit=3`,
-          { label: 'fred/fedfunds' },
+          `${FRED_BASE_URL}?series_id=FEDFUNDS&file_type=json&sort_order=desc&limit=3`,
+          {
+            label: 'fred/fedfunds',
+            headers: { Authorization: `Bearer ${fredApiKey}` },
+          },
         );
 
         const values = data.observations

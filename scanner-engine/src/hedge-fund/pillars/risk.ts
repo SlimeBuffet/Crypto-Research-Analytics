@@ -1,4 +1,4 @@
-import { CoinData } from '../../types';
+import { CoinData, IBinanceAdapter } from '../../types';
 import { BinanceAdapter } from '../../adapters/binance';
 import { RpcAdapter } from '../../adapters/rpc';
 import { logger } from '../../utils/logger';
@@ -18,13 +18,13 @@ import {
  *   3. Security Audit      — Check mint(), honeypot, ownership status
  */
 export class RiskEngine {
-  private binance: BinanceAdapter;
+  private binance: IBinanceAdapter;
   private rpc: RpcAdapter | null;
   private maxCorrelation: number;
   private priceCache = new Map<string, number[]>();
 
-  constructor(rpc: RpcAdapter | null, maxCorrelation = 0.8) {
-    this.binance = new BinanceAdapter();
+  constructor(rpc: RpcAdapter | null, maxCorrelation = 0.8, binance?: IBinanceAdapter) {
+    this.binance = binance ?? new BinanceAdapter();
     this.rpc = rpc;
     this.maxCorrelation = maxCorrelation;
   }

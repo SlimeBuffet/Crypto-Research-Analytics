@@ -1,4 +1,4 @@
-import { CoinData } from '../../types';
+import { CoinData, IBinanceAdapter, IScannerEngine } from '../../types';
 import { ScannerEngine } from '../../core/scanner-engine';
 import { RpcAdapter } from '../../adapters/rpc';
 import { ApiKeyManager } from '../../core/api-key-manager';
@@ -38,6 +38,14 @@ const DEFAULT_CONFIG: HedgeFundConfig = {
   macroEnabled: true,
 };
 
+/** Dependencies that can be injected into HedgeFundEngine */
+export interface HedgeFundEngineDeps {
+  scanner?: IScannerEngine;
+  binance?: IBinanceAdapter;
+  alpha?: AlphaEngine;
+  macro?: MacroEngine;
+}
+
 /**
  * Hedge Fund Intelligence & Execution Engine.
  *
@@ -50,7 +58,7 @@ const DEFAULT_CONFIG: HedgeFundConfig = {
  */
 export class HedgeFundEngine {
   private config: HedgeFundConfig;
-  private scanner: ScannerEngine;
+  private scanner: IScannerEngine;
   private trigger: PriceChannelTrigger;
   private alpha: AlphaEngine;
   private risk: RiskEngine;
@@ -62,19 +70,20 @@ export class HedgeFundEngine {
   private alertManager: AlertManager;
   private portfolio: CoinData[] = [];
 
-  constructor(config?: Partial<HedgeFundConfig>) {
+  constructor(config?: Partial<HedgeFundConfig>, deps?: HedgeFundEngineDeps) {
     this.config = { ...DEFAULT_CONFIG, ...config };
 
-    this.scanner = new ScannerEngine();
+    const binance = deps?.binance;
+    this.scanner = deps?.scanner ?? new ScannerEngine();
     this.trigger = new PriceChannelTrigger(this.config.triggerConfig);
-    this.alpha = new AlphaEngine();
+    this.alpha = deps?.alpha ?? new AlphaEngine(binance);
 
     const keyManager = new ApiKeyManager();
     const rpc = new RpcAdapter(keyManager);
-    this.risk = new RiskEngine(rpc, this.config.maxCorrelation);
+    this.risk = new RiskEngine(rpc, this.config.maxCorrelation, binance);
 
-    this.execution = new ExecutionEngine(this.config.maxSlippagePct);
-    this.macro = new MacroEngine();
+    this.execution = new ExecutionEngine(this.config.maxSlippagePct, binance);
+    this.macro = deps?.macro ?? new MacroEngine(undefined, binance);
     this.onchain = new OnChainAnalyticsEngine();
     this.microstructure = new MicrostructureEngine();
     this.narrative = new NarrativeEngine();

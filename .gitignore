@@ -45,6 +45,12 @@ build/
 target/
 .gradle/
 
+# SQLite data
+data/
+*.db
+*.db-wal
+*.db-shm
+
 # Python cache
 .mypy_cache/
 .pytest_cache/

@@ -1,3 +1,4 @@
+import { IScannerEngine } from '../../types';
 import { ScannerEngine } from '../../core/scanner-engine';
 import { logger } from '../../utils/logger';
 
@@ -71,11 +72,25 @@ const DEFAULT_MASTER_CONFIG: MasterConfig = {
  *
  * If BTC_Gate = 0 (crash), all scores become 0.
  */
+/** Dependencies that can be injected into MasterScannerEngine */
+export interface MasterScannerDeps {
+  scanner?: IScannerEngine;
+  ingestor?: StreamIngestor;
+  smcProcessor?: SmcProcessor;
+  dynamicScorer?: DynamicScorer;
+  forensicEngine?: ForensicAuditEngine;
+  elizaOrchestrator?: ElizaOrchestrator;
+  smcConvergence?: SmcConvergenceEngine;
+  antiManipulation?: AntiManipulationGuard;
+  narrativeMapper?: NarrativeMapper;
+  autoOptimizer?: AutoOptimizer;
+}
+
 export class MasterScannerEngine {
   private config: MasterConfig;
   private adapters: IDataProvider[] = [];
 
-  private scanner: ScannerEngine;
+  private scanner: IScannerEngine;
   private ingestor: StreamIngestor;
   private smcProcessor: SmcProcessor;
   private dynamicScorer: DynamicScorer;
@@ -86,19 +101,19 @@ export class MasterScannerEngine {
   private narrativeMapper: NarrativeMapper;
   private autoOptimizer: AutoOptimizer;
 
-  constructor(config?: Partial<MasterConfig>) {
+  constructor(config?: Partial<MasterConfig>, deps?: MasterScannerDeps) {
     this.config = { ...DEFAULT_MASTER_CONFIG, ...config };
 
-    this.scanner = new ScannerEngine();
-    this.ingestor = new StreamIngestor(this.config.ingestor);
-    this.smcProcessor = new SmcProcessor();
-    this.dynamicScorer = new DynamicScorer(this.config.weights);
-    this.forensicEngine = new ForensicAuditEngine();
-    this.elizaOrchestrator = new ElizaOrchestrator();
-    this.smcConvergence = new SmcConvergenceEngine();
-    this.antiManipulation = new AntiManipulationGuard();
-    this.narrativeMapper = new NarrativeMapper();
-    this.autoOptimizer = new AutoOptimizer(this.config.weights);
+    this.scanner = deps?.scanner ?? new ScannerEngine();
+    this.ingestor = deps?.ingestor ?? new StreamIngestor(this.config.ingestor);
+    this.smcProcessor = deps?.smcProcessor ?? new SmcProcessor();
+    this.dynamicScorer = deps?.dynamicScorer ?? new DynamicScorer(this.config.weights);
+    this.forensicEngine = deps?.forensicEngine ?? new ForensicAuditEngine();
+    this.elizaOrchestrator = deps?.elizaOrchestrator ?? new ElizaOrchestrator();
+    this.smcConvergence = deps?.smcConvergence ?? new SmcConvergenceEngine();
+    this.antiManipulation = deps?.antiManipulation ?? new AntiManipulationGuard();
+    this.narrativeMapper = deps?.narrativeMapper ?? new NarrativeMapper();
+    this.autoOptimizer = deps?.autoOptimizer ?? new AutoOptimizer(this.config.weights);
   }
 
   /**
