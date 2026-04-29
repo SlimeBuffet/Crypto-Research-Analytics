@@ -125,8 +125,10 @@ export class AlphaScorer {
 
     if (this.normalizers) {
       const staticScore = this.staticMomentumScore(c7d, c30d);
-      const z7d = this.normalizers.momentum7d.normalize(c7d, 3, staticScore);
-      const z30d = this.normalizers.momentum30d.normalize(c30d, 2, staticScore);
+      const fallback7d = Math.round(staticScore * 3 / 5 * 10) / 10;
+      const fallback30d = Math.round(staticScore * 2 / 5 * 10) / 10;
+      const z7d = this.normalizers.momentum7d.normalize(c7d, 3, fallback7d);
+      const z30d = this.normalizers.momentum30d.normalize(c30d, 2, fallback30d);
       return Math.min(5, Math.round((z7d + z30d) * 10) / 10);
     }
 
